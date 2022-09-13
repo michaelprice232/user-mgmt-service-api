@@ -30,6 +30,7 @@ func init() {
 		}
 		log.SetLevel(level)
 	}
+	log.Infof("Log level: %v\n", level)
 }
 
 func main() {
