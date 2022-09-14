@@ -94,7 +94,10 @@ func listUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	_, _ = w.Write(jsonResponse)
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		log.WithFields(log.Fields{"url": r.URL.Path}).WithError(err).Error("writing HTTP response")
+	}
 
 	log.WithFields(log.Fields{
 		"url":           r.URL.Path,
