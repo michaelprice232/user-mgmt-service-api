@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+
+  db:
+    image: postgres:13.8
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: user-mgmt-db
+
+volumes:
+  db-data:

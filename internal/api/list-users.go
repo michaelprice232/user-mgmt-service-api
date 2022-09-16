@@ -28,12 +28,11 @@ func listUsers(w http.ResponseWriter, r *http.Request) {
 			jsonHTTPErrorResponseWriter(w, r, 400, "Invalid per_page value")
 			return
 		}
-		perPage = int(perPage64)
-
-		if perPage > maxPageSize {
+		if perPage64 > maxPageSize {
 			jsonHTTPErrorResponseWriter(w, r, 400, "per_page value larger than allowed max")
 			return
 		}
+		perPage = int(perPage64)
 	}
 
 	// todo: read from DB instead of this duplication
@@ -80,12 +79,12 @@ func listUsers(w http.ResponseWriter, r *http.Request) {
 		response.MorePages = true
 	}
 
+	response.TotalPages = numberOfPages
+	response.CurrentPage = page
+
 	for i := startingIndex; i < endIndex; i++ {
 		response.Users = append(response.Users, dbResults.Users[i])
 	}
-
-	response.TotalPages = numberOfPages
-	response.CurrentPage = page
 
 	var jsonResponse []byte
 	jsonResponse, err = json.Marshal(response)
