@@ -35,16 +35,21 @@ func listUsers(w http.ResponseWriter, r *http.Request) {
 		perPage = int(perPage64)
 	}
 
-	// todo: read from DB instead of this duplication
+	// todo: read the DB records on demand rather than all at once to reduce memory overhead
+	allUsers, err := queryAllUsers()
+	if err != nil {
+		log.WithError(err).Fatal("querying database")
+	}
+
 	var dbResults UsersResponse
 	if nameFilter = queryStrings.Get("name_filter"); nameFilter != "" {
-		for _, user := range usersDB.Users {
+		for _, user := range allUsers {
 			if strings.Contains(user.Name, nameFilter) {
 				dbResults.Users = append(dbResults.Users, user)
 			}
 		}
 	} else {
-		dbResults = usersDB
+		dbResults = UsersResponse{Users: allUsers}
 	}
 
 	totalItems := len(dbResults.Users)
@@ -106,20 +111,4 @@ func listUsers(w http.ResponseWriter, r *http.Request) {
 		"page":          page,
 		"statusCode":    200,
 	}).Infof("serving page")
-}
-
-// todo: read from database
-var usersDB = UsersResponse{
-	Users: []User{
-		{Name: "jayne 0", Email: "michaelprice232@outlook.com"},
-		{Name: "jayne 1", Email: "jaynefreer30031984@yahoo.co.uk"},
-		{Name: "jayne 2", Email: "jaynefreer30031984@yahoo.co.uk"},
-		{Name: "jayne 3", Email: "jaynefreer30031984@yahoo.co.uk"},
-		{Name: "bob 1", Email: "jaynefreer30031984@yahoo.co.uk"},
-		{Name: "jayne 5", Email: "jaynefreer30031984@yahoo.co.uk"},
-		{Name: "jayne 6", Email: "jaynefreer30031984@yahoo.co.uk"},
-		{Name: "bob 2", Email: "jaynefreer30031984@yahoo.co.uk"},
-		{Name: "jayne 8", Email: "jaynefreer30031984@yahoo.co.uk"},
-		{Name: "jayne 9", Email: "jaynefreer30031984@yahoo.co.uk"},
-	},
 }

@@ -5,10 +5,14 @@ services:
     image: postgres:13.8
     volumes:
       - db-data:/var/lib/postgresql/data
+
+      # Seed the database and records during initial startup. Will not run if the volume is already populated
+      - ./sql:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
     restart: always
     environment:
+      # Local env only
       POSTGRES_PASSWORD: test
       POSTGRES_DB: user-mgmt-db
 
