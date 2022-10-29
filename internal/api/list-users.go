@@ -2,9 +2,9 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -35,24 +35,16 @@ func listUsers(w http.ResponseWriter, r *http.Request) {
 		perPage = int(perPage64)
 	}
 
-	// todo: read the DB records on demand rather than all at once to reduce memory overhead
-	allUsers, err := queryAllUsers()
+	recordCount, err := queryRecordCount()
 	if err != nil {
-		log.WithError(err).Fatal("querying database")
+		jsonHTTPErrorResponseWriter(w, r, 500, "Internal Server Error")
+		return
 	}
+	fmt.Printf("Total Records: %d\n", recordCount)
 
-	var dbResults UsersResponse
-	if nameFilter = queryStrings.Get("name_filter"); nameFilter != "" {
-		for _, user := range allUsers {
-			if strings.Contains(user.Name, nameFilter) {
-				dbResults.Users = append(dbResults.Users, user)
-			}
-		}
-	} else {
-		dbResults = UsersResponse{Users: allUsers}
-	}
+	nameFilter = queryStrings.Get("name_filter")
 
-	totalItems := len(dbResults.Users)
+	totalItems := recordCount
 	numberOfPages := totalItems / perPage
 	if totalItems%perPage != 0 {
 		// Add a non-full page
@@ -69,27 +61,26 @@ func listUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := UsersResponse{}
-	var startingIndex, endIndex int
+	var startingIndex int
 	if page == 1 {
 		startingIndex = 0
 	} else {
 		startingIndex = (page * perPage) - perPage
 	}
 
-	if page == numberOfPages {
-		// Last page
-		endIndex = len(dbResults.Users)
-	} else {
-		endIndex = startingIndex + perPage
+	if page != numberOfPages {
 		response.MorePages = true
 	}
 
 	response.TotalPages = numberOfPages
 	response.CurrentPage = page
 
-	for i := startingIndex; i < endIndex; i++ {
-		response.Users = append(response.Users, dbResults.Users[i])
+	dbResults, err := queryUsers(startingIndex, perPage, nameFilter)
+	if err != nil {
+		log.WithError(err).Fatal("querying database")
 	}
+
+	response.Users = dbResults
 
 	var jsonResponse []byte
 	jsonResponse, err = json.Marshal(response)

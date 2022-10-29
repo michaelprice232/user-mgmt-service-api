@@ -4,7 +4,7 @@ Work in progress
 
 L&D project containing a user management REST API exposing CRUD endpoints, written in Go with a Postgres DB
 
-Currently consists of only a single endpoint `GET /users` which supports `paging`, `pagination` and `filtering` by name
+Currently consists of only a single endpoint `GET /users` which supports `pagination` and `filtering` by name
 
 ## How to run
 
@@ -22,7 +22,7 @@ make test-endpoints
 
 # Stop docker-compose Postgres database and remove the Docker volume so that the DB init scripts are run next time
 # Make sure to also stop the Go webserver process. It is not running as a Docker container yet
-make stop-webserver-and-delete-db-volume
+make stop-database-and-delete-volume
 ```
 
 ## Example Output
