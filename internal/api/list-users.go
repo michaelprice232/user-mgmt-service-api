@@ -35,14 +35,14 @@ func listUsers(w http.ResponseWriter, r *http.Request) {
 		perPage = int(perPage64)
 	}
 
-	recordCount, err := queryRecordCount()
+	nameFilter = queryStrings.Get("name_filter")
+
+	recordCount, err := queryRecordCount(nameFilter)
 	if err != nil {
 		jsonHTTPErrorResponseWriter(w, r, 500, "Internal Server Error")
 		return
 	}
 	fmt.Printf("Total Records: %d\n", recordCount)
-
-	nameFilter = queryStrings.Get("name_filter")
 
 	totalItems := recordCount
 	numberOfPages := totalItems / perPage

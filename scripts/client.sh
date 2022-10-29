@@ -16,4 +16,7 @@ echo  "Test Filtering (query params: name_filter=bob)"
 curl --silent "${url}/users?name_filter=bob" | jq
 echo
 
+echo  "Test Filtering & pagination (query params: name_filter=bob&per_page=1&page=2)"
+curl --silent "${url}/users?name_filter=bob&per_page=1&page=2" | jq
+echo
 

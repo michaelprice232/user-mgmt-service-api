@@ -9,8 +9,10 @@ import (
 )
 
 // queryRecordCount returns the total number of records in the users table
-func queryRecordCount() (int, error) {
+func queryRecordCount(nameFilter string) (int, error) {
 	var count int
+	var row *sql.Row
+
 	// todo: extract into an ENVAR or AWS Secrets Manager
 	connStr := "user=postgres password=test dbname=user-mgmt-db sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
@@ -24,7 +26,12 @@ func queryRecordCount() (int, error) {
 		}
 	}(db)
 
-	row := db.QueryRow("SELECT COUNT(*) FROM users")
+	if nameFilter != "" {
+		row = db.QueryRow("SELECT COUNT(*) FROM users WHERE full_name like '%' || $1 || '%'", nameFilter)
+	} else {
+		row = db.QueryRow("SELECT COUNT(*) FROM users")
+	}
+
 	err = row.Scan(&count)
 	if err != nil {
 		return 0, err
