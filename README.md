@@ -25,6 +25,11 @@ make test-endpoints
 make stop-database-and-delete-volume
 ```
 
+## Unit Tests
+```shell
+make test
+```
+
 ## Example Output
 
 ```shell

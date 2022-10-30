@@ -14,3 +14,6 @@ test-endpoints:
 
 prune-docker:
 	docker system prune --all --volumes --force
+
+test:
+	go test -v user-mgmt-service-api/internal/api

@@ -60,7 +60,6 @@ func (env *Env) listUsers(w http.ResponseWriter, r *http.Request) {
 
 	response.TotalPages = numberOfPages
 	response.CurrentPage = params.page
-
 	dbResults, err = env.UsersDB.queryUsers(startingIndex, params.perPage, params.nameFilter)
 	if err != nil {
 		jsonHTTPErrorResponseWriter(w, r, 500, "querying the users table")
