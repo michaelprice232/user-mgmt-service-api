@@ -8,7 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// queryRecordCount returns the total number of records in the users table
+// queryRecordCount returns the total number of records in the users table, or number of records that match the nameFilter filter (if nameFilter is non-empty)
 func queryRecordCount(nameFilter string) (int, error) {
 	var count int
 	var row *sql.Row

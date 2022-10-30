@@ -16,3 +16,9 @@ type JsonHTTPErrorResponse struct {
 	Code    int
 	Message string
 }
+
+type queryParameters struct {
+	perPage    int
+	page       int
+	nameFilter string
+}

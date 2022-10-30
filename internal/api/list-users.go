@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	log "github.com/sirupsen/logrus"
@@ -16,90 +17,118 @@ const (
 
 func listUsers(w http.ResponseWriter, r *http.Request) {
 	var err error
-	var perPage = defaultPageSize
-	var perPage64, page64 int64
-	var page = 1
-	var nameFilter string
+	var params queryParameters
+	var recordCount int
+	var startingIndex int
+	var dbResults []User
 
 	queryStrings := r.URL.Query()
-	if perPageEnv := queryStrings.Get("per_page"); perPageEnv != "" {
-		perPage64, err = strconv.ParseInt(perPageEnv, 10, 64)
-		if err != nil || perPage64 <= 0 {
-			jsonHTTPErrorResponseWriter(w, r, 400, "Invalid per_page value")
-			return
-		}
-		if perPage64 > maxPageSize {
-			jsonHTTPErrorResponseWriter(w, r, 400, "per_page value larger than allowed max")
-			return
-		}
-		perPage = int(perPage64)
-	}
-
-	nameFilter = queryStrings.Get("name_filter")
-
-	recordCount, err := queryRecordCount(nameFilter)
+	params, err = extractAndValidateQueryParams(w, r, queryStrings)
 	if err != nil {
-		jsonHTTPErrorResponseWriter(w, r, 500, "Internal Server Error")
+		jsonHTTPErrorResponseWriter(w, r, 500, "processing query parameters")
 		return
 	}
-	fmt.Printf("Total Records: %d\n", recordCount)
 
-	totalItems := recordCount
-	numberOfPages := totalItems / perPage
-	if totalItems%perPage != 0 {
+	recordCount, err = queryRecordCount(params.nameFilter)
+	if err != nil {
+		jsonHTTPErrorResponseWriter(w, r, 500, "calculating the number of records in database")
+		return
+	}
+
+	numberOfPages := recordCount / params.perPage
+	if recordCount%params.perPage != 0 {
 		// Add a non-full page
 		numberOfPages++
 	}
 
-	if pageEnv := queryStrings.Get("page"); pageEnv != "" {
-		page64, err = strconv.ParseInt(pageEnv, 10, 64)
-		if err != nil || page64 <= 0 || page64 > int64(numberOfPages) {
-			jsonHTTPErrorResponseWriter(w, r, 404, "Page not found")
-			return
-		}
-		page = int(page64)
+	// Can only be performed after the number of records is obtained and so can't be part of the extractAndValidateQueryParams function
+	if params.page > numberOfPages {
+		jsonHTTPErrorResponseWriter(w, r, 404, fmt.Sprintf("page %d not found", params.page))
+		return
 	}
 
 	response := UsersResponse{}
-	var startingIndex int
-	if page == 1 {
+	if params.page == 1 {
 		startingIndex = 0
 	} else {
-		startingIndex = (page * perPage) - perPage
+		startingIndex = (params.page * params.perPage) - params.perPage
 	}
 
-	if page != numberOfPages {
+	if params.page != numberOfPages {
 		response.MorePages = true
 	}
 
 	response.TotalPages = numberOfPages
-	response.CurrentPage = page
+	response.CurrentPage = params.page
 
-	dbResults, err := queryUsers(startingIndex, perPage, nameFilter)
+	dbResults, err = queryUsers(startingIndex, params.perPage, params.nameFilter)
 	if err != nil {
-		log.WithError(err).Fatal("querying database")
+		jsonHTTPErrorResponseWriter(w, r, 500, "querying the users table")
+		return
 	}
 
 	response.Users = dbResults
 
-	var jsonResponse []byte
-	jsonResponse, err = json.Marshal(response)
+	err = writeJSONHTTPResponse(w, response)
 	if err != nil {
-		jsonHTTPErrorResponseWriter(w, r, 500, "Internal Server Error")
+		jsonHTTPErrorResponseWriter(w, r, 500, fmt.Sprintf("writing HTTP response: %v", err))
 		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(jsonResponse)
-	if err != nil {
-		log.WithFields(log.Fields{"url": r.URL.Path}).WithError(err).Error("writing HTTP response")
 	}
 
 	log.WithFields(log.Fields{
 		"url":           r.URL.Path,
-		"totalItems":    totalItems,
+		"totalItems":    recordCount,
 		"numberOfPages": numberOfPages,
-		"perPage":       perPage,
-		"page":          page,
+		"perPage":       params.perPage,
+		"page":          params.page,
 		"statusCode":    200,
 	}).Infof("serving page")
+}
+
+func extractAndValidateQueryParams(w http.ResponseWriter, r *http.Request, queryStrings url.Values) (queryParameters, error) {
+	var err error
+	var perPage64, page64 int64
+	var params queryParameters
+
+	if perPageEnv := queryStrings.Get("per_page"); perPageEnv != "" {
+		perPage64, err = strconv.ParseInt(perPageEnv, 10, 64)
+		if err != nil || perPage64 <= 0 || perPage64 > maxPageSize {
+			jsonHTTPErrorResponseWriter(w, r, 400, fmt.Sprintf("Invalid per_page value. Must be an integer between 1 -> %d", maxPageSize))
+			return params, err
+		}
+		params.perPage = int(perPage64)
+	} else {
+		params.perPage = defaultPageSize
+	}
+
+	if pageEnv := queryStrings.Get("page"); pageEnv != "" {
+		page64, err = strconv.ParseInt(pageEnv, 10, 64)
+		if err != nil || page64 <= 0 {
+			jsonHTTPErrorResponseWriter(w, r, 404, fmt.Sprintf("page %s not found", pageEnv))
+			return params, err
+		}
+		params.page = int(page64)
+	} else {
+		params.page = 1
+	}
+
+	params.nameFilter = queryStrings.Get("name_filter")
+
+	return params, nil
+}
+
+func writeJSONHTTPResponse(w http.ResponseWriter, payload UsersResponse) error {
+	var err error
+	var jsonResponse []byte
+
+	jsonResponse, err = json.Marshal(payload)
+	if err != nil {
+		return fmt.Errorf("marshalling JSON in preparation for HTTP response")
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		return err
+	}
+	return nil
 }
