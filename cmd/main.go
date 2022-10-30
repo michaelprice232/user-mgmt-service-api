@@ -7,6 +7,8 @@ import (
 	"user-mgmt-service-api/internal/api"
 )
 
+var dbConfig api.DBConfig
+
 func init() {
 	var level log.Level
 	var err error
@@ -31,8 +33,22 @@ func init() {
 		log.SetLevel(level)
 	}
 	log.Infof("Log level: %v\n", level)
+
+	dbConfig.DbName = RequireStringEnvar("database_name")
+	dbConfig.Username = RequireStringEnvar("database_username")
+	dbConfig.Password = RequireStringEnvar("database_password")
+	dbConfig.Sslmode = RequireStringEnvar("database_ssl_mode")
+
 }
 
 func main() {
-	api.RunAPIServer()
+	api.RunAPIServer(dbConfig)
+}
+
+func RequireStringEnvar(key string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		log.Fatalf("envar '%s' not set. Exiting", key)
+	}
+	return value
 }

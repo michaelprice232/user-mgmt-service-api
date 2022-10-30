@@ -12,9 +12,8 @@ import (
 func queryRecordCount(nameFilter string) (int, error) {
 	var count int
 	var row *sql.Row
-
-	// todo: extract into an ENVAR or AWS Secrets Manager
-	connStr := "user=postgres password=test dbname=user-mgmt-db sslmode=disable"
+	
+	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s", dbConfig.Username, dbConfig.Password, dbConfig.DbName, dbConfig.Sslmode)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return 0, err
@@ -46,8 +45,7 @@ func queryUsers(offset, limit int, nameFilter string) ([]User, error) {
 	var err error
 	var rows *sql.Rows
 
-	// todo: extract into an ENVAR or AWS Secrets Manager
-	connStr := "user=postgres password=test dbname=user-mgmt-db sslmode=disable"
+	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s", dbConfig.Username, dbConfig.Password, dbConfig.DbName, dbConfig.Sslmode)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)

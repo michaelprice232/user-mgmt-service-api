@@ -8,8 +8,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func RunAPIServer() {
+var dbConfig DBConfig
+
+func RunAPIServer(c DBConfig) {
 	serverAddr := "0.0.0.0:8080"
+	dbConfig = c
+
 	r := mux.NewRouter()
 	r.HandleFunc("/users", listUsers).Methods("GET")
 

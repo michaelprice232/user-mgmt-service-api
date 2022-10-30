@@ -22,3 +22,10 @@ type queryParameters struct {
 	page       int
 	nameFilter string
 }
+
+type DBConfig struct {
+	DbName   string
+	Username string
+	Password string
+	Sslmode  string
+}
