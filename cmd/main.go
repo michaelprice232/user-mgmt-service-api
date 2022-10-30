@@ -1,13 +1,13 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"os"
 
 	log "github.com/sirupsen/logrus"
 	"user-mgmt-service-api/internal/api"
 )
-
-var dbConfig api.DBConfig
 
 func init() {
 	var level log.Level
@@ -34,15 +34,22 @@ func init() {
 	}
 	log.Infof("Log level: %v\n", level)
 
-	dbConfig.DbName = RequireStringEnvar("database_name")
-	dbConfig.Username = RequireStringEnvar("database_username")
-	dbConfig.Password = RequireStringEnvar("database_password")
-	dbConfig.Sslmode = RequireStringEnvar("database_ssl_mode")
+	dbName := RequireStringEnvar("database_name")
+	dbUsername := RequireStringEnvar("database_username")
+	dbPassword := RequireStringEnvar("database_password")
+	dbSslMode := RequireStringEnvar("database_ssl_mode")
+
+	db, err := sql.Open("postgres", fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s", dbUsername, dbPassword, dbName, dbSslMode))
+	if err != nil {
+		log.WithError(err).Fatal("opening DB connection pool")
+	}
+
+	api.EnvConfig = &api.Env{UsersDB: &api.UserModel{DB: db}}
 
 }
 
 func main() {
-	api.RunAPIServer(dbConfig)
+	api.RunAPIServer()
 }
 
 func RequireStringEnvar(key string) string {

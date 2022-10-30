@@ -15,7 +15,7 @@ const (
 	maxPageSize     = 5
 )
 
-func listUsers(w http.ResponseWriter, r *http.Request) {
+func (env *Env) listUsers(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var params queryParameters
 	var recordCount int
@@ -29,7 +29,7 @@ func listUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	recordCount, err = queryRecordCount(params.nameFilter)
+	recordCount, err = env.UsersDB.queryRecordCount(params.nameFilter)
 	if err != nil {
 		jsonHTTPErrorResponseWriter(w, r, 500, "calculating the number of records in database")
 		return
@@ -61,7 +61,7 @@ func listUsers(w http.ResponseWriter, r *http.Request) {
 	response.TotalPages = numberOfPages
 	response.CurrentPage = params.page
 
-	dbResults, err = queryUsers(startingIndex, params.perPage, params.nameFilter)
+	dbResults, err = env.UsersDB.queryUsers(startingIndex, params.perPage, params.nameFilter)
 	if err != nil {
 		jsonHTTPErrorResponseWriter(w, r, 500, "querying the users table")
 		return

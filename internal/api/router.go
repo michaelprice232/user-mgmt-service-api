@@ -8,15 +8,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var dbConfig DBConfig
+var EnvConfig *Env
 
-func RunAPIServer(c DBConfig) {
+func RunAPIServer() {
 	serverAddr := "0.0.0.0:8080"
-	dbConfig = c
 
+	// todo: add a /health endpoint
 	r := mux.NewRouter()
-	r.HandleFunc("/users", listUsers).Methods("GET")
+	r.HandleFunc("/users", EnvConfig.listUsers).Methods("GET")
 
+	// todo: enable graceful shutdowns from the appropriate OS signals
 	srv := &http.Server{
 		Addr:         serverAddr,
 		WriteTimeout: time.Second * 15,
