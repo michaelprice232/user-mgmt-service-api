@@ -7,6 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// jsonHTTPErrorResponseWriter writes non-2xx JSON responses back to the HTTP client as well as raising an error level log
 func jsonHTTPErrorResponseWriter(w http.ResponseWriter, r *http.Request, statusCode int, message string) {
 	var jsonResp []byte
 	var err error

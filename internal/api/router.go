@@ -10,6 +10,7 @@ import (
 
 var EnvConfig *Env
 
+// RunAPIServer starts an HTTP server after setting up any dependencies using *Env
 func RunAPIServer() {
 	serverAddr := "0.0.0.0:8080"
 

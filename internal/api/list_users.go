@@ -15,6 +15,7 @@ const (
 	maxPageSize     = 5
 )
 
+// listUsers is a HTTP handler got GET /users
 func (env *Env) listUsers(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var params queryParameters
@@ -23,9 +24,9 @@ func (env *Env) listUsers(w http.ResponseWriter, r *http.Request) {
 	var dbResults []User
 
 	queryStrings := r.URL.Query()
-	params, err = extractAndValidateQueryParams(w, r, queryStrings)
+	params, err = extractAndValidateQueryParams(queryStrings)
 	if err != nil {
-		jsonHTTPErrorResponseWriter(w, r, 500, fmt.Sprintf("processing query parameters: %v", err))
+		jsonHTTPErrorResponseWriter(w, r, 400, fmt.Sprintf("processing query parameters: %v", err))
 		return
 	}
 
@@ -84,6 +85,7 @@ func (env *Env) listUsers(w http.ResponseWriter, r *http.Request) {
 	}).Infof("serving page")
 }
 
+// getFullPathIncludingQueryParams returns either uri, or the uri including the query parameters if they are present
 func getFullPathIncludingQueryParams(url *url.URL) string {
 	if url.Query().Encode() != "" {
 		return fmt.Sprintf("%s?%s", url.Path, url.Query().Encode())
@@ -92,7 +94,8 @@ func getFullPathIncludingQueryParams(url *url.URL) string {
 	}
 }
 
-func extractAndValidateQueryParams(w http.ResponseWriter, r *http.Request, queryStrings url.Values) (queryParameters, error) {
+// extractAndValidateQueryParams extracts any query strings and validates them
+func extractAndValidateQueryParams(queryStrings url.Values) (queryParameters, error) {
 	var err error
 	var perPage64, page64 int64
 	var params queryParameters
@@ -132,6 +135,7 @@ func extractAndValidateQueryParams(w http.ResponseWriter, r *http.Request, query
 	return params, nil
 }
 
+// writeJSONHTTPResponse writes a UsersResponse as a JSON payload back to the HTTP client
 func writeJSONHTTPResponse(w http.ResponseWriter, payload UsersResponse) error {
 	var err error
 	var jsonResponse []byte

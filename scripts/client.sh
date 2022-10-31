@@ -4,6 +4,7 @@ set -eu -o pipefail
 
 url='http://localhost:8080'
 
+# Happy paths
 echo "Query GET /users:"
 curl --silent "${url}/users" | jq
 echo
@@ -24,4 +25,8 @@ echo
 # Bad paths
 echo  "per_page param too large"
 curl --silent "${url}/users?per_page=2000" | jq
+echo
+
+echo  "page not found"
+curl --silent "${url}/users?page=1000" | jq
 echo
