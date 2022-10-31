@@ -25,13 +25,13 @@ func (env *Env) listUsers(w http.ResponseWriter, r *http.Request) {
 	queryStrings := r.URL.Query()
 	params, err = extractAndValidateQueryParams(w, r, queryStrings)
 	if err != nil {
-		jsonHTTPErrorResponseWriter(w, r, 500, "processing query parameters")
+		jsonHTTPErrorResponseWriter(w, r, 500, fmt.Sprintf("processing query parameters: %v", err))
 		return
 	}
 
 	recordCount, err = env.UsersDB.queryRecordCount(params.nameFilter)
 	if err != nil {
-		jsonHTTPErrorResponseWriter(w, r, 500, "calculating the number of records in database")
+		jsonHTTPErrorResponseWriter(w, r, 500, fmt.Sprintf("calculating the number of records in database: %v", err))
 		return
 	}
 
@@ -62,7 +62,7 @@ func (env *Env) listUsers(w http.ResponseWriter, r *http.Request) {
 	response.CurrentPage = params.page
 	dbResults, err = env.UsersDB.queryUsers(startingIndex, params.perPage, params.nameFilter)
 	if err != nil {
-		jsonHTTPErrorResponseWriter(w, r, 500, "querying the users table")
+		jsonHTTPErrorResponseWriter(w, r, 500, fmt.Sprintf("querying the users table: %v", err))
 		return
 	}
 
@@ -75,13 +75,21 @@ func (env *Env) listUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.WithFields(log.Fields{
-		"url":           r.URL.Path,
+		"url":           getFullPathIncludingQueryParams(r.URL),
 		"totalItems":    recordCount,
 		"numberOfPages": numberOfPages,
 		"perPage":       params.perPage,
 		"page":          params.page,
 		"statusCode":    200,
 	}).Infof("serving page")
+}
+
+func getFullPathIncludingQueryParams(url *url.URL) string {
+	if url.Query().Encode() != "" {
+		return fmt.Sprintf("%s?%s", url.Path, url.Query().Encode())
+	} else {
+		return url.Path
+	}
 }
 
 func extractAndValidateQueryParams(w http.ResponseWriter, r *http.Request, queryStrings url.Values) (queryParameters, error) {
@@ -92,8 +100,12 @@ func extractAndValidateQueryParams(w http.ResponseWriter, r *http.Request, query
 	if perPageEnv := queryStrings.Get("per_page"); perPageEnv != "" {
 		perPage64, err = strconv.ParseInt(perPageEnv, 10, 64)
 		if err != nil || perPage64 <= 0 || perPage64 > maxPageSize {
-			jsonHTTPErrorResponseWriter(w, r, 400, fmt.Sprintf("Invalid per_page value. Must be an integer between 1 -> %d", maxPageSize))
-			return params, err
+			if err != nil {
+				return params, fmt.Errorf("per_page query string must be an integer between 1->%d: %v", maxPageSize, err)
+			} else {
+				return params, fmt.Errorf("per_page query string must be an integer between 1->%d", maxPageSize)
+			}
+
 		}
 		params.perPage = int(perPage64)
 	} else {
@@ -103,8 +115,12 @@ func extractAndValidateQueryParams(w http.ResponseWriter, r *http.Request, query
 	if pageEnv := queryStrings.Get("page"); pageEnv != "" {
 		page64, err = strconv.ParseInt(pageEnv, 10, 64)
 		if err != nil || page64 <= 0 {
-			jsonHTTPErrorResponseWriter(w, r, 404, fmt.Sprintf("page %s not found", pageEnv))
-			return params, err
+			if err != nil {
+				return params, fmt.Errorf("page query string must be an integer greater than 0: %v", err)
+			} else {
+				return params, fmt.Errorf("page query string must be an integer greater than 0")
+			}
+
 		}
 		params.page = int(page64)
 	} else {

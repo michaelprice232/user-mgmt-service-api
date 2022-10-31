@@ -2,10 +2,12 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	log "github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
 )
 
 type mockUserModel struct{}
@@ -17,6 +19,10 @@ func (m *mockUserModel) queryRecordCount(nameFilter string) (int, error) {
 		return 5, nil
 	}
 
+}
+
+func TestMain(m *testing.M) {
+	log.SetLevel(log.ErrorLevel)
 }
 
 func (m *mockUserModel) queryUsers(offset, limit int, nameFilter string) ([]User, error) {
