@@ -14,8 +14,9 @@ type UserModel struct {
 }
 
 type User struct {
-	Name  string
-	Email string
+	UserID int
+	Name   string
+	Email  string
 }
 
 type UsersResponse struct {

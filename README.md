@@ -40,10 +40,12 @@ make test
 {
   "Users": [
     {
+      "UserID": 1,
       "Name": "mike",
       "Email": "mike@email.com"
     },
     {
+      "UserID": 2,
       "Name": "bob",
       "Email": "bob@email.com"
     }
@@ -58,18 +60,22 @@ make test
 {
   "Users": [
     {
+      "UserID": 5,
       "Name": "susan",
       "Email": "susan@email.com"
     },
     {
+      "UserID": 6,
       "Name": "holly",
       "Email": "holly@email.com"
     },
     {
+      "UserID": 7,
       "Name": "bobby",
       "Email": "bobby@email.com"
     },
     {
+      "UserID": 8,
       "Name": "clive",
       "Email": "clive@email.com"
     }
@@ -84,10 +90,12 @@ make test
 {
   "Users": [
     {
+      "UserID": 2,
       "Name": "bob",
       "Email": "bob@email.com"
     },
     {
+      "UserID": 7,
       "Name": "bobby",
       "Email": "bobby@email.com"
     }
@@ -95,5 +103,12 @@ make test
   "total_pages": 1,
   "current_page": 1,
   "more_pages": false
+}
+
+# Example Validation
+% curl --silent "${url}/users?per_page=2000" | jq
+{
+  "Code": 400,
+  "Message": "processing query parameters: per_page query string must be an integer between 1->5"
 }
 ```

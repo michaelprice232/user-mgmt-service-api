@@ -27,22 +27,22 @@ func (m *mockUserModel) queryUsers(offset, limit int, nameFilter string) ([]User
 
 	if nameFilter == "bob" {
 		users = []User{
-			{Name: "bob", Email: "bob@email.com"},
-			{Name: "bobby", Email: "bobby@email.com"},
+			{UserID: 2, Name: "bob", Email: "bob@email.com"},
+			{UserID: 3, Name: "bobby", Email: "bobby@email.com"},
 		}
 	} else {
 		if offset == 3 && limit == 3 {
 			users = []User{
-				{Name: "jayne", Email: "jayne@email.com"},
-				{Name: "mike", Email: "mike@email.com"},
+				{UserID: 4, Name: "jayne", Email: "jayne@email.com"},
+				{UserID: 5, Name: "mike", Email: "mike@email.com"},
 			}
 		} else {
 			users = []User{
-				{Name: "mark", Email: "mark@email.com"},
-				{Name: "bob", Email: "bob@email.com"},
-				{Name: "bobby", Email: "bobby@email.com"},
-				{Name: "jayne", Email: "jayne@email.com"},
-				{Name: "mike", Email: "mike@email.com"},
+				{UserID: 1, Name: "mark", Email: "mark@email.com"},
+				{UserID: 2, Name: "bob", Email: "bob@email.com"},
+				{UserID: 3, Name: "bobby", Email: "bobby@email.com"},
+				{UserID: 4, Name: "jayne", Email: "jayne@email.com"},
+				{UserID: 5, Name: "mike", Email: "mike@email.com"},
 			}
 		}
 
@@ -74,6 +74,7 @@ func TestListUsersWithoutQueryParams(t *testing.T) {
 	assert.Equal(t, 5, len(resp.Users))
 	assert.Equal(t, "mark", resp.Users[0].Name)
 	assert.Equal(t, "mike@email.com", resp.Users[4].Email)
+	assert.Equal(t, 1, resp.Users[0].UserID)
 }
 
 func TestListUsersWithNameFilter(t *testing.T) {
@@ -89,6 +90,7 @@ func TestListUsersWithNameFilter(t *testing.T) {
 	assert.Equal(t, 2, len(resp.Users))
 	assert.Equal(t, "bobby", resp.Users[1].Name)
 	assert.Equal(t, "bob@email.com", resp.Users[0].Email)
+	assert.Equal(t, 3, resp.Users[1].UserID)
 }
 
 func TestListUsersWithPagination(t *testing.T) {
@@ -104,6 +106,7 @@ func TestListUsersWithPagination(t *testing.T) {
 	assert.Equal(t, 2, len(resp.Users))
 	assert.Equal(t, "jayne", resp.Users[0].Name)
 	assert.Equal(t, "mike@email.com", resp.Users[1].Email)
+	assert.Equal(t, 4, resp.Users[0].UserID)
 }
 
 func TestListUsersPerPageTooLarge(t *testing.T) {
