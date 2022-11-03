@@ -8,14 +8,23 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// queryRecordCount returns the total number of records in the users table, or number of records that match the nameFilter filter (if nameFilter is non-empty)
-func (m *UserModel) queryRecordCount(nameFilter string) (int, error) {
+// queryRecordCount returns the count of records based one 1 of 3 discrete filters (only 1 can be used at once)
+// - records which have a full_name which have a wildcard match against nameFilter
+// - records which have a logon_name which has an exact match against logonNameFilter
+// - all records in the users table
+func (m *UserModel) queryRecordCount(nameFilter, logonNameFilter string) (int, error) {
 	var count int
 	var row *sql.Row
 	var err error
 
+	if nameFilter != "" && logonNameFilter != "" {
+		return 0, fmt.Errorf("cannot define both nameFilter and logonNameFilter for queryRecordCount function")
+	}
+
 	if nameFilter != "" {
 		row = m.DB.QueryRow("SELECT COUNT(*) FROM users WHERE full_name like '%' || $1 || '%'", nameFilter)
+	} else if logonNameFilter != "" {
+		row = m.DB.QueryRow("SELECT COUNT(*) FROM users WHERE logon_name = $1", logonNameFilter)
 	} else {
 		row = m.DB.QueryRow("SELECT COUNT(*) FROM users")
 	}
@@ -63,4 +72,14 @@ func (m *UserModel) queryUsers(offset, limit int, nameFilter string) ([]User, er
 	}
 
 	return usersDBResponse, nil
+}
+
+// addUser adds a new user to the users table
+func (m *UserModel) addUser(user User) (User, error) {
+	err := m.DB.QueryRow(`INSERT INTO users(logon_name, full_name, email) VALUES ($1, $2, $3) RETURNING user_id`, user.LogonName, user.FullName, user.Email).Scan(&user.UserID)
+	if err != nil {
+		return user, fmt.Errorf("inserting logon_name '%s' into users table: %v", user.LogonName, err)
+	}
+
+	return user, nil
 }

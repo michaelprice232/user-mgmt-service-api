@@ -4,8 +4,9 @@ import "database/sql"
 
 type Env struct {
 	UsersDB interface {
-		queryRecordCount(string) (int, error)
+		queryRecordCount(string, string) (int, error)
 		queryUsers(int, int, string) ([]User, error)
+		addUser(User) (User, error)
 	}
 }
 
@@ -14,10 +15,10 @@ type UserModel struct {
 }
 
 type User struct {
-	UserID    int    `json:"user_id"`
-	LogonName string `json:"logon_name"`
-	FullName  string `json:"full_name"`
-	Email     string `json:"email"`
+	UserID    int    `json:"user_id,omitempty"`
+	LogonName string `json:"logon_name,omitempty"`
+	FullName  string `json:"full_name,omitempty"`
+	Email     string `json:"email,omitempty"`
 }
 
 type UsersResponse struct {

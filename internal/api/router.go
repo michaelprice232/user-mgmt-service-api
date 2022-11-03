@@ -17,6 +17,7 @@ func RunAPIServer() {
 	// todo: add a /health endpoint
 	r := mux.NewRouter()
 	r.HandleFunc("/users", EnvConfig.listUsers).Methods("GET")
+	r.HandleFunc("/users", EnvConfig.postUser).Methods("POST")
 
 	// todo: enable graceful shutdowns from the appropriate OS signals
 	srv := &http.Server{

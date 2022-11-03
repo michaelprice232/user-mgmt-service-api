@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -30,7 +29,7 @@ func (env *Env) listUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	recordCount, err = env.UsersDB.queryRecordCount(params.nameFilter)
+	recordCount, err = env.UsersDB.queryRecordCount(params.nameFilter, "")
 	if err != nil {
 		jsonHTTPErrorResponseWriter(w, r, 500, fmt.Sprintf("calculating the number of records in database: %v", err))
 		return
@@ -133,21 +132,4 @@ func extractAndValidateQueryParams(queryStrings url.Values) (queryParameters, er
 	params.nameFilter = queryStrings.Get("name_filter")
 
 	return params, nil
-}
-
-// writeJSONHTTPResponse writes a UsersResponse as a JSON payload back to the HTTP client
-func writeJSONHTTPResponse(w http.ResponseWriter, payload UsersResponse) error {
-	var err error
-	var jsonResponse []byte
-
-	jsonResponse, err = json.Marshal(payload)
-	if err != nil {
-		return fmt.Errorf("marshalling JSON in preparation for HTTP response")
-	}
-	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(jsonResponse)
-	if err != nil {
-		return err
-	}
-	return nil
 }

@@ -30,3 +30,5 @@ echo
 echo  "page not found (query params: page=1000)"
 curl --silent "${url}/users?page=1000" | jq
 echo
+
+
