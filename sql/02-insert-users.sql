@@ -1,11 +1,11 @@
-INSERT INTO users (full_name, email)
-VALUES('mike', 'mike@email.com'),
-      ('bob', 'bob@email.com'),
-      ('sarah', 'sarah@email.com'),
-      ('eric', 'eric@email.com'),
-      ('susan', 'susan@email.com'),
-      ('holly', 'holly@email.com'),
-      ('bobby', 'bobby@email.com'),
-      ('clive', 'clive@email.com'),
-      ('lorna', 'lorna@email.com'),
-      ('jayne', 'jayne@email.com');
+INSERT INTO users (logon_name, full_name, email)
+VALUES('mike1', 'mike', 'mike@email.com'),
+      ('bob44', 'bob', 'bob@email.com'),
+      ('sarah485', 'sarah', 'sarah@email.com'),
+      ('eric2', 'eric', 'eric@email.com'),
+      ('susan9', 'susan', 'susan@email.com'),
+      ('holly0', 'holly', 'holly@email.com'),
+      ('bobby8', 'bobby', 'bobby@email.com'),
+      ('clive88', 'clive', 'clive@email.com'),
+      ('lorna1', 'lorna', 'lorna@email.com'),
+      ('jayne2234', 'jayne', 'jayne@email.com');

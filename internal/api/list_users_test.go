@@ -27,22 +27,22 @@ func (m *mockUserModel) queryUsers(offset, limit int, nameFilter string) ([]User
 
 	if nameFilter == "bob" {
 		users = []User{
-			{UserID: 2, Name: "bob", Email: "bob@email.com"},
-			{UserID: 3, Name: "bobby", Email: "bobby@email.com"},
+			{UserID: 2, LogonName: "bob44", FullName: "bob", Email: "bob@email.com"},
+			{UserID: 3, LogonName: "bobby8", FullName: "bobby", Email: "bobby@email.com"},
 		}
 	} else {
 		if offset == 3 && limit == 3 {
 			users = []User{
-				{UserID: 4, Name: "jayne", Email: "jayne@email.com"},
-				{UserID: 5, Name: "mike", Email: "mike@email.com"},
+				{UserID: 4, LogonName: "jayne2234", FullName: "jayne", Email: "jayne@email.com"},
+				{UserID: 5, LogonName: "mike1", FullName: "mike", Email: "mike@email.com"},
 			}
 		} else {
 			users = []User{
-				{UserID: 1, Name: "mark", Email: "mark@email.com"},
-				{UserID: 2, Name: "bob", Email: "bob@email.com"},
-				{UserID: 3, Name: "bobby", Email: "bobby@email.com"},
-				{UserID: 4, Name: "jayne", Email: "jayne@email.com"},
-				{UserID: 5, Name: "mike", Email: "mike@email.com"},
+				{UserID: 1, LogonName: "mark9", FullName: "mark", Email: "mark@email.com"},
+				{UserID: 2, LogonName: "bob44", FullName: "bob", Email: "bob@email.com"},
+				{UserID: 3, LogonName: "bobby8", FullName: "bobby", Email: "bobby@email.com"},
+				{UserID: 4, LogonName: "jayne2234", FullName: "jayne", Email: "jayne@email.com"},
+				{UserID: 5, LogonName: "mike1", FullName: "mike", Email: "mike@email.com"},
 			}
 		}
 
@@ -72,8 +72,9 @@ func TestListUsersWithoutQueryParams(t *testing.T) {
 		t.Fatal("unable to unmarshal JSON response")
 	}
 	assert.Equal(t, 5, len(resp.Users))
-	assert.Equal(t, "mark", resp.Users[0].Name)
+	assert.Equal(t, "mark", resp.Users[0].FullName)
 	assert.Equal(t, "mike@email.com", resp.Users[4].Email)
+	assert.Equal(t, "mark9", resp.Users[0].LogonName)
 	assert.Equal(t, 1, resp.Users[0].UserID)
 }
 
@@ -88,8 +89,9 @@ func TestListUsersWithNameFilter(t *testing.T) {
 		t.Fatal("unable to unmarshal JSON response")
 	}
 	assert.Equal(t, 2, len(resp.Users))
-	assert.Equal(t, "bobby", resp.Users[1].Name)
+	assert.Equal(t, "bobby", resp.Users[1].FullName)
 	assert.Equal(t, "bob@email.com", resp.Users[0].Email)
+	assert.Equal(t, "bob44", resp.Users[0].LogonName)
 	assert.Equal(t, 3, resp.Users[1].UserID)
 }
 
@@ -104,8 +106,9 @@ func TestListUsersWithPagination(t *testing.T) {
 		t.Fatal("unable to unmarshal JSON response")
 	}
 	assert.Equal(t, 2, len(resp.Users))
-	assert.Equal(t, "jayne", resp.Users[0].Name)
+	assert.Equal(t, "jayne", resp.Users[0].FullName)
 	assert.Equal(t, "mike@email.com", resp.Users[1].Email)
+	assert.Equal(t, "mike1", resp.Users[1].LogonName)
 	assert.Equal(t, 4, resp.Users[0].UserID)
 }
 

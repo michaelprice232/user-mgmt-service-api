@@ -40,14 +40,16 @@ make test
 {
   "Users": [
     {
-      "UserID": 1,
-      "Name": "mike",
-      "Email": "mike@email.com"
+      "user_id": 1,
+      "logon_name": "mike1",
+      "full_name": "mike",
+      "email": "mike@email.com"
     },
     {
-      "UserID": 2,
-      "Name": "bob",
-      "Email": "bob@email.com"
+      "user_id": 2,
+      "logon_name": "bob44",
+      "full_name": "bob",
+      "email": "bob@email.com"
     }
   ],
   "total_pages": 5,
@@ -60,24 +62,28 @@ make test
 {
   "Users": [
     {
-      "UserID": 5,
-      "Name": "susan",
-      "Email": "susan@email.com"
+      "user_id": 5,
+      "logon_name": "susan9",
+      "full_name": "susan",
+      "email": "susan@email.com"
     },
     {
-      "UserID": 6,
-      "Name": "holly",
-      "Email": "holly@email.com"
+      "user_id": 6,
+      "logon_name": "holly0",
+      "full_name": "holly",
+      "email": "holly@email.com"
     },
     {
-      "UserID": 7,
-      "Name": "bobby",
-      "Email": "bobby@email.com"
+      "user_id": 7,
+      "logon_name": "bobby8",
+      "full_name": "bobby",
+      "email": "bobby@email.com"
     },
     {
-      "UserID": 8,
-      "Name": "clive",
-      "Email": "clive@email.com"
+      "user_id": 8,
+      "logon_name": "clive88",
+      "full_name": "clive",
+      "email": "clive@email.com"
     }
   ],
   "total_pages": 3,
@@ -85,25 +91,30 @@ make test
   "more_pages": true
 }
 
+
+
 # Filtering
 % curl --silent "${url}/users?name_filter=bob" | jq
 {
   "Users": [
     {
-      "UserID": 2,
-      "Name": "bob",
-      "Email": "bob@email.com"
+      "user_id": 2,
+      "logon_name": "bob44",
+      "full_name": "bob",
+      "email": "bob@email.com"
     },
     {
-      "UserID": 7,
-      "Name": "bobby",
-      "Email": "bobby@email.com"
+      "user_id": 7,
+      "logon_name": "bobby8",
+      "full_name": "bobby",
+      "email": "bobby@email.com"
     }
   ],
   "total_pages": 1,
   "current_page": 1,
   "more_pages": false
 }
+
 
 # Example Validation
 % curl --silent "${url}/users?per_page=2000" | jq

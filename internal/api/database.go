@@ -35,9 +35,9 @@ func (m *UserModel) queryUsers(offset, limit int, nameFilter string) ([]User, er
 	var rows *sql.Rows
 
 	if nameFilter != "" {
-		rows, err = m.DB.Query(`SELECT user_id, full_name, email FROM users WHERE full_name like '%' || $1 || '%' ORDER BY user_id OFFSET $2 LIMIT $3`, nameFilter, offset, limit)
+		rows, err = m.DB.Query(`SELECT user_id, logon_name, full_name, email FROM users WHERE full_name like '%' || $1 || '%' ORDER BY user_id OFFSET $2 LIMIT $3`, nameFilter, offset, limit)
 	} else {
-		rows, err = m.DB.Query(`SELECT user_id, full_name, email FROM users ORDER BY user_id OFFSET $1 LIMIT $2`, offset, limit)
+		rows, err = m.DB.Query(`SELECT user_id, logon_name, full_name, email FROM users ORDER BY user_id OFFSET $1 LIMIT $2`, offset, limit)
 	}
 	if err != nil {
 		return usersDBResponse, fmt.Errorf("querying database for users: %v", err)
@@ -51,7 +51,7 @@ func (m *UserModel) queryUsers(offset, limit int, nameFilter string) ([]User, er
 
 	for rows.Next() {
 		user := User{}
-		if err = rows.Scan(&user.UserID, &user.Name, &user.Email); err != nil {
+		if err = rows.Scan(&user.UserID, &user.LogonName, &user.FullName, &user.Email); err != nil {
 			return usersDBResponse, fmt.Errorf("scanning over the DB results: %v", err)
 		}
 		usersDBResponse = append(usersDBResponse, user)

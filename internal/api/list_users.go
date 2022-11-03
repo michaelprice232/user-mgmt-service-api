@@ -15,7 +15,7 @@ const (
 	maxPageSize     = 5
 )
 
-// listUsers is a HTTP handler got GET /users
+// listUsers is an HTTP handler got GET /users
 func (env *Env) listUsers(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var params queryParameters
