@@ -13,7 +13,7 @@ import (
 // mockUserModel is used to mock the Postgres DB calls
 type mockUserModel struct{}
 
-func (m *mockUserModel) queryRecordCount(nameFilter string) (int, error) {
+func (m *mockUserModel) queryRecordCount(nameFilter, _ string) (int, error) {
 	if nameFilter == "bob" {
 		return 2, nil
 	} else {
@@ -49,6 +49,10 @@ func (m *mockUserModel) queryUsers(offset, limit int, nameFilter string) ([]User
 	}
 
 	return users, nil
+}
+
+func (m *mockUserModel) addUser(_ User) (user User, err error) {
+	return
 }
 
 // setupMockGetUsersHTTPHandler is helper function to remove duplication in setting up the HTTP test handlers in the unit tests

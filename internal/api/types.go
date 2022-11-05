@@ -16,9 +16,9 @@ type UserModel struct {
 
 type User struct {
 	UserID    int    `json:"user_id,omitempty"`
-	LogonName string `json:"logon_name,omitempty"`
-	FullName  string `json:"full_name,omitempty"`
-	Email     string `json:"email,omitempty"`
+	LogonName string `json:"logon_name"`
+	FullName  string `json:"full_name"`
+	Email     string `json:"email"`
 }
 
 type UsersResponse struct {

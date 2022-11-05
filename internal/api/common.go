@@ -21,31 +21,24 @@ func jsonHTTPErrorResponseWriter(w http.ResponseWriter, r *http.Request, statusC
 	jsonResp, err = json.Marshal(resp)
 	if err != nil {
 		// Log & continue
-		log.WithError(err).Errorf("marshalling response into JSON: %v", resp)
+		log.WithError(err).Errorf("marshalling error response into JSON: %v", resp)
 	}
 	_, err = w.Write(jsonResp)
 	if err != nil {
 		// Log & continue
-		log.WithError(err).Errorf("writing HTTP response: %v", jsonResp)
+		log.WithError(err).Errorf("writing HTTP error response: %v", jsonResp)
 	}
 
 	log.WithFields(log.Fields{
-		"statusCode": statusCode, "message": message, "url": r.URL.Path}).Error("writing non-2xx HTTP response")
+		"statusCode": statusCode, "message": message, "url": getFullPathIncludingQueryParams(r.URL)}).Error("writing non-2xx HTTP response")
 }
 
-// writeJSONHTTPResponse writes either a UsersResponse or User struct as a JSON payload back to the HTTP client
+// writeJSONHTTPResponse writes data as a JSON payload back to the HTTP client
 func writeJSONHTTPResponse(w http.ResponseWriter, payload interface{}) error {
 	var err error
 	var jsonResponse []byte
 
-	switch payload.(type) {
-	case UsersResponse:
-		jsonResponse, err = json.Marshal(payload)
-	case User:
-		jsonResponse, err = json.Marshal(payload)
-	default:
-		return fmt.Errorf("unable to assert payload type")
-	}
+	jsonResponse, err = json.Marshal(payload)
 
 	if err != nil {
 		return fmt.Errorf("marshalling JSON in preparation for HTTP response")
@@ -53,7 +46,7 @@ func writeJSONHTTPResponse(w http.ResponseWriter, payload interface{}) error {
 	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(jsonResponse)
 	if err != nil {
-		return err
+		return fmt.Errorf("writing JSON formatted HTTP response")
 	}
 	return nil
 }

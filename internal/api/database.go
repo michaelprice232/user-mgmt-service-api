@@ -8,10 +8,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// queryRecordCount returns the count of records based one 1 of 3 discrete filters (only 1 can be used at once)
-// - records which have a full_name which have a wildcard match against nameFilter
-// - records which have a logon_name which has an exact match against logonNameFilter
-// - all records in the users table
+// queryRecordCount returns the count of records based one 1 of 3 filters (only 1 can be used at once)
+// 1) records which have a full_name which have a wildcard match against nameFilter
+// 2) records which have a logon_name which has an exact match against logonNameFilter
+// 3) all records in the users table (no filters)
 func (m *UserModel) queryRecordCount(nameFilter, logonNameFilter string) (int, error) {
 	var count int
 	var row *sql.Row
