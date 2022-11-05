@@ -4,7 +4,15 @@ Work in progress
 
 L&D project containing a user management REST API exposing CRUD endpoints, written in Go with a Postgres DB
 
-Currently consists of only a single endpoint `GET /users` which supports `pagination` and `filtering` by name
+For request/response/error models please see [types](internal/api/types.go) or see [example output below](https://github.com/michaelprice232/user-mgmt-service-api#example-output). Currently supported endpoints:
+
+| Endpoint    | Description                                                               | Query Strings                                                                         | Request Payload Type | Response Payload Type | 
+|-------------|---------------------------------------------------------------------------|---------------------------------------------------------------------------------------|----------------------|-----------------------|
+| GET /users  | List the users in the database. Supports pagination and filtering by name | **per_page**: how many users to display in each returned page                         | N/A (no payload)     | UsersResponse         |
+|             |                                                                           | **page**: page number to return                                                       |                      |                       |
+|             |                                                                           | **name_filter**: return users which have a full_name which match this wildcard search |                      |                       |
+| POST /users | Add a new user. User logon_name must be unique                            | N/A                                                                                   | User                 | User                  |
+
 
 ## How to run
 
@@ -34,6 +42,17 @@ make test
 
 ```shell
 % url='http://localhost:8080'
+
+# Add a new user
+% curl -s -X POST "${url}/users" \
+  -H 'Content-Type: application/json' \
+  -d '{"logon_name":"testuser1","full_name":"Test User 1","email":"test1@email.com"}' | jq
+{
+  "user_id": 11,
+  "logon_name": "testuser1",
+  "full_name": "Test User 1",
+  "email": "test1@email.com"
+}
 
 # Listing all users 
 % curl --silent "${url}/users" | jq
@@ -122,4 +141,25 @@ make test
   "Code": 400,
   "Message": "processing query parameters: per_page query string must be an integer between 1->5"
 }
+
+% curl -s -X POST "${url}/users" \
+  -H 'Content-Type: application/json' \
+  -d '{"logon_name":"testuser1","full_name":"Test User 1","email":"test1@email.com"}' | jq
+{
+  "Code": 400,
+  "Message": "logon_name 'testuser1' already taken. Please choose another one"
+}
 ```
+
+## Remaining Tasks
+- [x] Add GET /users
+- [x] Add POST /users
+- [] Add DELETE /users/<user> endpoint
+- [] Add PUT /users/<user> endpoint
+- [] Add health endpoint suitable for K8s
+- [] Enable graceful shutdowns of HTTP server suitable for K8s
+- [] Instrument with Prometheus library
+- [] Instrument with OpenTelemetry client
+- [] Integrate with GitHub Actions for running unit tests, linters & security scanner
+- [] Add Terraform for deploying into K8s cluster
+- [] Add Terratest smoke tests for validating deployment
