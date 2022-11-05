@@ -7,6 +7,7 @@ type Env struct {
 		queryRecordCount(string, string) (int, error)
 		queryUsers(int, int, string) ([]User, error)
 		addUser(User) (User, error)
+		deleteUser(string) error
 	}
 }
 

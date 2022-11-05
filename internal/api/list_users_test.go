@@ -54,6 +54,9 @@ func (m *mockGetUsersModel) queryUsers(offset, limit int, nameFilter string) ([]
 func (m *mockGetUsersModel) addUser(_ User) (user User, err error) {
 	return
 }
+func (m *mockGetUsersModel) deleteUser(_ string) (err error) {
+	return
+}
 
 // setupMockGetUsersHTTPHandler is helper function to remove duplication in setting up the HTTP test handlers in the unit tests
 func setupMockGetUsersHTTPHandler(url string) *httptest.ResponseRecorder {

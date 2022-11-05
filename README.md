@@ -6,12 +6,13 @@ L&D project containing a user management REST API exposing CRUD endpoints, writt
 
 For request/response/error models please see [types](internal/api/types.go) or see [example output below](https://github.com/michaelprice232/user-mgmt-service-api#example-output). Currently supported endpoints:
 
-| Endpoint    | Description                                                               | Query Strings                                                                         | Request Payload Type | Response Payload Type | 
-|-------------|---------------------------------------------------------------------------|---------------------------------------------------------------------------------------|----------------------|-----------------------|
-| GET /users  | List the users in the database. Supports pagination and filtering by name | **per_page**: how many users to display in each returned page                         | N/A (no payload)     | UsersResponse         |
-|             |                                                                           | **page**: page number to return                                                       |                      |                       |
-|             |                                                                           | **name_filter**: return users which have a full_name which match this wildcard search |                      |                       |
-| POST /users | Add a new user. User logon_name must be unique                            | N/A                                                                                   | User                 | User                  |
+| Endpoint                   | Description                                                               | Query Strings                                                                         | Request Payload Type | Response Payload Type | 
+|----------------------------|---------------------------------------------------------------------------|---------------------------------------------------------------------------------------|----------------------|-----------------------|
+| GET /users                 | List the users in the database. Supports pagination and filtering by name | **per_page**: how many users to display in each returned page                         | N/A (no payload)     | UsersResponse         |
+|                            |                                                                           | **page**: page number to return                                                       |                      |                       |
+|                            |                                                                           | **name_filter**: return users which have a full_name which match this wildcard search |                      |                       |
+| POST /users                | Add a new user. User logon_name must be unique                            | N/A                                                                                   | User                 | User                  |
+| DELETE /users/<logon_name> | Delete a user from the database based on their logon_name                 | N/A                                                                                   | N/A                  | N/A                   |
 
 
 ## How to run
@@ -53,6 +54,10 @@ make test
   "full_name": "Test User 1",
   "email": "test1@email.com"
 }
+
+#  Delete a user
+% curl -s -i -X DELETE "${url}/users/susan9"
+HTTP/1.1 204 No Content
 
 # Listing all users 
 % curl --silent "${url}/users" | jq
@@ -154,7 +159,7 @@ make test
 ## Remaining Tasks
 - [x] Add GET /users
 - [x] Add POST /users
-- [ ] Add DELETE /users/<user> endpoint
+- [x] Add DELETE /users/<user> endpoint
 - [ ] Add PUT /users/<user> endpoint
 - [ ] Add health endpoint suitable for K8s
 - [ ] Enable graceful shutdowns of HTTP server suitable for K8s

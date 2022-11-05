@@ -83,3 +83,13 @@ func (m *UserModel) addUser(user User) (User, error) {
 
 	return user, nil
 }
+
+// deleteUser deletes a user from the users table
+func (m *UserModel) deleteUser(logonName string) error {
+	_, err := m.DB.Exec(`DELETE FROM users WHERE logon_name = $1`, logonName)
+	if err != nil {
+		return fmt.Errorf("deleting record with logon_name = '%s' from users table: %v", logonName, err)
+	}
+
+	return nil
+}

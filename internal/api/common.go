@@ -29,12 +29,19 @@ func jsonHTTPErrorResponseWriter(w http.ResponseWriter, r *http.Request, statusC
 		log.WithError(err).Errorf("writing HTTP error response: %v", jsonResp)
 	}
 
-	log.WithFields(log.Fields{
-		"statusCode": statusCode, "message": message, "url": getFullPathIncludingQueryParams(r.URL)}).Error("writing non-2xx HTTP response")
+	// Only log at INFO if not a 5xx error
+	if statusCode >= 500 {
+		log.WithFields(log.Fields{
+			"status_code": statusCode, "method": r.Method, "message": message, "url": getFullPathIncludingQueryParams(r.URL)}).Error("writing non-2xx HTTP response")
+	} else {
+		log.WithFields(log.Fields{
+			"status_code": statusCode, "method": r.Method, "message": message, "url": getFullPathIncludingQueryParams(r.URL)}).Infof("writing non-2xx HTTP response")
+
+	}
 }
 
 // writeJSONHTTPResponse writes data as a JSON payload back to the HTTP client
-func writeJSONHTTPResponse(w http.ResponseWriter, payload interface{}) error {
+func writeJSONHTTPResponse(w http.ResponseWriter, responseCode int, payload interface{}) error {
 	var err error
 	var jsonResponse []byte
 
@@ -43,6 +50,7 @@ func writeJSONHTTPResponse(w http.ResponseWriter, payload interface{}) error {
 	if err != nil {
 		return fmt.Errorf("marshalling JSON in preparation for HTTP response")
 	}
+	w.WriteHeader(responseCode)
 	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(jsonResponse)
 	if err != nil {

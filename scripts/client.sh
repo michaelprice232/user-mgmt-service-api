@@ -29,6 +29,11 @@ curl -s -X POST "${url}/users" \
   -d '{"logon_name":"testuser1","full_name":"Test User 1","email":"test1@email.com"}' | jq
 echo
 
+# DELETE /users/<user>
+echo  "DELETE /users/clive88"
+curl -s -i -X DELETE "${url}/users/clive88"
+echo
+
 
 ## Exceptions ##
 echo  "per_page param too large: GET /users?per_page=2000"

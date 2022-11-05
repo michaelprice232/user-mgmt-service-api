@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"net/mail"
@@ -21,6 +22,7 @@ func (env *Env) postUser(w http.ResponseWriter, r *http.Request) {
 		jsonHTTPErrorResponseWriter(w, r, 400, fmt.Sprintf("unmarshalling http request body: %v", err))
 		return
 	}
+	log.Infof("Unmarshaled payload: %#v", user)
 
 	err = validateRequestPayload(user, env, w, r)
 	if err != nil {
@@ -33,11 +35,18 @@ func (env *Env) postUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = writeJSONHTTPResponse(w, user)
+	err = writeJSONHTTPResponse(w, 201, user)
 	if err != nil {
 		jsonHTTPErrorResponseWriter(w, r, 500, fmt.Sprintf("writing HTTP response: %v", err))
 		return
 	}
+
+	log.WithFields(log.Fields{
+		"url":         getFullPathIncludingQueryParams(r.URL),
+		"status_code": 201,
+		"method":      r.Method,
+		"logon_name":  user.LogonName,
+	}).Infof("serving page")
 }
 
 // validateRequestPayload validates the JSON request payload that has been sent by the client

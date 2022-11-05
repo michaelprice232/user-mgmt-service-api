@@ -35,6 +35,10 @@ func (m *mockPostUserModel) addUser(user User) (User, error) {
 	return user, nil
 }
 
+func (m *mockPostUserModel) deleteUser(_ string) (err error) {
+	return
+}
+
 func setupMockPostUserHTTPHandler(body bytes.Buffer) *httptest.ResponseRecorder {
 	recorder := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/users", &body)
@@ -76,7 +80,7 @@ func TestAddUser(t *testing.T) {
 		Email:     "test@email.com",
 	}
 	rec, resp := postRequestHelperSuccess(user, t)
-	assert.Equal(t, 200, rec.Code)
+	assert.Equal(t, 201, rec.Code)
 	assert.Equal(t, 11, resp.UserID)
 	assert.Equal(t, user.LogonName, resp.LogonName)
 	assert.Equal(t, user.FullName, resp.FullName)

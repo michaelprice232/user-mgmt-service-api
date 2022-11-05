@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	defaultPageSize = 2
-	maxPageSize     = 5
+	defaultPageSize = 4
+	maxPageSize     = 10
 )
 
 // listUsers is an HTTP handler got GET /users
@@ -68,7 +68,7 @@ func (env *Env) listUsers(w http.ResponseWriter, r *http.Request) {
 
 	response.Users = dbResults
 
-	err = writeJSONHTTPResponse(w, response)
+	err = writeJSONHTTPResponse(w, 200, response)
 	if err != nil {
 		jsonHTTPErrorResponseWriter(w, r, 500, fmt.Sprintf("writing HTTP response: %v", err))
 		return
@@ -80,7 +80,8 @@ func (env *Env) listUsers(w http.ResponseWriter, r *http.Request) {
 		"numberOfPages": numberOfPages,
 		"perPage":       params.perPage,
 		"page":          params.page,
-		"statusCode":    200,
+		"status_code":   200,
+		"method":        r.Method,
 	}).Infof("serving page")
 }
 
