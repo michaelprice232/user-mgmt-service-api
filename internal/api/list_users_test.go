@@ -10,10 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// mockUserModel is used to mock the Postgres DB calls
-type mockUserModel struct{}
+// mockGetUsersModel is used to mock the Postgres DB calls
+type mockGetUsersModel struct{}
 
-func (m *mockUserModel) queryRecordCount(nameFilter, _ string) (int, error) {
+func (m *mockGetUsersModel) queryRecordCount(nameFilter, _ string) (int, error) {
 	if nameFilter == "bob" {
 		return 2, nil
 	} else {
@@ -22,7 +22,7 @@ func (m *mockUserModel) queryRecordCount(nameFilter, _ string) (int, error) {
 
 }
 
-func (m *mockUserModel) queryUsers(offset, limit int, nameFilter string) ([]User, error) {
+func (m *mockGetUsersModel) queryUsers(offset, limit int, nameFilter string) ([]User, error) {
 	var users []User
 
 	if nameFilter == "bob" {
@@ -51,7 +51,7 @@ func (m *mockUserModel) queryUsers(offset, limit int, nameFilter string) ([]User
 	return users, nil
 }
 
-func (m *mockUserModel) addUser(_ User) (user User, err error) {
+func (m *mockGetUsersModel) addUser(_ User) (user User, err error) {
 	return
 }
 
@@ -59,7 +59,7 @@ func (m *mockUserModel) addUser(_ User) (user User, err error) {
 func setupMockGetUsersHTTPHandler(url string) *httptest.ResponseRecorder {
 	recorder := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", url, nil)
-	env := &Env{UsersDB: &mockUserModel{}}
+	env := &Env{UsersDB: &mockGetUsersModel{}}
 	http.HandlerFunc(env.listUsers).ServeHTTP(recorder, req)
 
 	return recorder
