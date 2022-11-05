@@ -154,12 +154,12 @@ make test
 ## Remaining Tasks
 - [x] Add GET /users
 - [x] Add POST /users
-- [] Add DELETE /users/<user> endpoint
-- [] Add PUT /users/<user> endpoint
-- [] Add health endpoint suitable for K8s
-- [] Enable graceful shutdowns of HTTP server suitable for K8s
-- [] Instrument with Prometheus library
-- [] Instrument with OpenTelemetry client
-- [] Integrate with GitHub Actions for running unit tests, linters & security scanner
-- [] Add Terraform for deploying into K8s cluster
-- [] Add Terratest smoke tests for validating deployment
+- [ ] Add DELETE /users/<user> endpoint
+- [ ] Add PUT /users/<user> endpoint
+- [ ] Add health endpoint suitable for K8s
+- [ ] Enable graceful shutdowns of HTTP server suitable for K8s
+- [ ] Instrument with Prometheus library
+- [ ] Instrument with OpenTelemetry client
+- [ ] Integrate with GitHub Actions for running unit tests, linters & security scanner
+- [ ] Add Terraform for deploying into K8s cluster
+- [ ] Add Terratest smoke tests for validating deployment
