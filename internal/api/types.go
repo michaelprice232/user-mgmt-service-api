@@ -8,6 +8,7 @@ type Env struct {
 		queryUsers(int, int, string) ([]User, error)
 		addUser(User) (User, error)
 		deleteUser(string) error
+		updateUser(User) (User, error)
 	}
 }
 

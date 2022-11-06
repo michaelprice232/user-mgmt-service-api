@@ -93,3 +93,25 @@ func (m *UserModel) deleteUser(logonName string) error {
 
 	return nil
 }
+
+// updateUser updates a single record in the users table based on the logon_name
+// Supports updating email or logon_name fields or both
+func (m *UserModel) updateUser(user User) (User, error) {
+	log.Debugf("user: %#v", user)
+	var err error
+	if user.Email != "" && user.FullName != "" {
+		err = m.DB.QueryRow(fmt.Sprintf(`UPDATE users SET email = $1, full_name = $2 WHERE logon_name = $3 RETURNING *`), user.Email, user.FullName, user.LogonName).Scan(&user.UserID, &user.LogonName, &user.FullName, &user.Email)
+	} else if user.Email != "" {
+		err = m.DB.QueryRow(fmt.Sprintf(`UPDATE users SET email = $1 WHERE logon_name = $2 RETURNING *`), user.Email, user.LogonName).Scan(&user.UserID, &user.LogonName, &user.FullName, &user.Email)
+	} else if user.FullName != "" {
+		err = m.DB.QueryRow(fmt.Sprintf(`UPDATE users SET full_name = $1 WHERE logon_name = $2 RETURNING *`), user.FullName, user.LogonName).Scan(&user.UserID, &user.LogonName, &user.FullName, &user.Email)
+	} else {
+		return user, fmt.Errorf("email and/or full_name fields need to be set in the user object")
+	}
+
+	if err != nil {
+		return user, fmt.Errorf("updating record: %v", err)
+	}
+
+	return user, nil
+}

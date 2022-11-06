@@ -6,7 +6,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
-	"net/mail"
 )
 
 // postUser is an HTTP handler for POST /users
@@ -49,7 +48,7 @@ func (env *Env) postUser(w http.ResponseWriter, r *http.Request) {
 	}).Infof("serving page")
 }
 
-// validateRequestPayload validates the JSON request payload that has been sent by the client
+// validateRequestPayload validates the request payload of the POST /users/<logon_name> operation
 func validateRequestPayload(user User, env *Env, w http.ResponseWriter, r *http.Request) error {
 	err := validateFieldLengths(user)
 	if err != nil {
@@ -93,28 +92,4 @@ func checkForUniqueLogonName(logonName string, env *Env) (bool, error) {
 	} else {
 		return false, nil
 	}
-}
-
-// validateFieldLengths validates that each of the User fields do not exceed the database table limits
-func validateFieldLengths(user User) error {
-	if len(user.LogonName) > 20 {
-		return fmt.Errorf("logon_name maximum lengh is 20. Currently %d", len(user.LogonName))
-	}
-	if len(user.FullName) > 100 {
-		return fmt.Errorf("full_name maximum length is 100. Currently %d", len(user.FullName))
-	}
-	if len(user.Email) > 100 {
-		return fmt.Errorf("email maxium length is 100. Currently %d", len(user.Email))
-	}
-
-	return nil
-}
-
-// validateEmailField validates that the parameter is in a valid email address format
-func validateEmailField(email string) error {
-	_, err := mail.ParseAddress(email)
-	if err != nil {
-		return fmt.Errorf("'%s' not a valid email address field: %v", email, err)
-	}
-	return nil
 }

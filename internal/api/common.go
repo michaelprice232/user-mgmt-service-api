@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/mail"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -50,11 +51,48 @@ func writeJSONHTTPResponse(w http.ResponseWriter, responseCode int, payload inte
 	if err != nil {
 		return fmt.Errorf("marshalling JSON in preparation for HTTP response")
 	}
-	w.WriteHeader(responseCode)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(responseCode)
 	_, err = w.Write(jsonResponse)
 	if err != nil {
 		return fmt.Errorf("writing JSON formatted HTTP response")
+	}
+	return nil
+}
+
+// checkLogonNameExists returns true if logonName already exists in the DB
+func checkLogonNameExists(logonName string, env *Env) (bool, error) {
+	count, err := env.UsersDB.queryRecordCount("", logonName)
+	if err != nil {
+		return false, fmt.Errorf("checking to ensure that logon_name '%s' exists in database: %v", logonName, err)
+	}
+	if count == 0 {
+		return false, nil
+	} else {
+		return true, nil
+	}
+}
+
+// validateFieldLengths validates that each of the User fields do not exceed the database table limits
+func validateFieldLengths(user User) error {
+	if len(user.LogonName) > 20 {
+		return fmt.Errorf("logon_name maximum lengh is 20. Currently %d", len(user.LogonName))
+	}
+	if len(user.FullName) > 100 {
+		return fmt.Errorf("full_name maximum length is 100. Currently %d", len(user.FullName))
+	}
+	if len(user.Email) > 100 {
+		return fmt.Errorf("email maximum length is 100. Currently %d", len(user.Email))
+	}
+
+	return nil
+}
+
+// validateEmailField validates that the parameter is in a valid email address format
+func validateEmailField(email string) error {
+	_, err := mail.ParseAddress(email)
+	if err != nil {
+		return fmt.Errorf("'%s' not a valid email address field: %v", email, err)
 	}
 	return nil
 }

@@ -10,8 +10,8 @@ echo "GET /users (no query params)"
 curl -s "${url}/users" | jq
 echo
 
-echo  "Test Pagination:  GET /users?per_page=4&page=2"
-curl -s "${url}/users?per_page=4&page=2" | jq
+echo  "Test Pagination:  GET /users?per_page=5&page=2"
+curl -s "${url}/users?per_page=5&page=2" | jq
 echo
 
 echo  "Test Filtering: GET /users?name_filter=bob"
@@ -29,11 +29,17 @@ curl -s -X POST "${url}/users" \
   -d '{"logon_name":"testuser1","full_name":"Test User 1","email":"test1@email.com"}' | jq
 echo
 
-# DELETE /users/<user>
+# DELETE /users/<logon_name>
 echo  "DELETE /users/clive88"
 curl -s -i -X DELETE "${url}/users/clive88"
 echo
 
+# PUT /users/<logon_name>
+echo  "PUT /users/<logon_name>"
+curl -s -X PUT "${url}/users/holly0" \
+  -H 'Content-Type: application/json' \
+  -d '{"full_name":"Holly Updated","email":"holly.updated@email.com"}' | jq
+echo
 
 ## Exceptions ##
 echo  "per_page param too large: GET /users?per_page=2000"

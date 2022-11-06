@@ -12,7 +12,7 @@ import (
 func (env *Env) deleteUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	targetLogonName := vars["logon_name"]
-	log.Infof("Received delete request for logon_name '%s'", targetLogonName)
+	log.Infof("Received DELETE request for logon_name '%s'", targetLogonName)
 
 	exists, err := checkLogonNameExists(targetLogonName, env)
 	if err != nil {
@@ -33,18 +33,5 @@ func (env *Env) deleteUser(w http.ResponseWriter, r *http.Request) {
 	} else {
 		jsonHTTPErrorResponseWriter(w, r, 404, fmt.Sprintf("'%s' does not exist. No deletion required", targetLogonName))
 		return
-	}
-}
-
-// checkLogonNameExists returns true if logonName already exists in the DB
-func checkLogonNameExists(logonName string, env *Env) (bool, error) {
-	count, err := env.UsersDB.queryRecordCount("", logonName)
-	if err != nil {
-		return false, fmt.Errorf("checking to ensure that logon_name '%s' exists in database: %v", logonName, err)
-	}
-	if count == 0 {
-		return false, nil
-	} else {
-		return true, nil
 	}
 }

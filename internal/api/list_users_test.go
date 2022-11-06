@@ -58,6 +58,8 @@ func (m *mockGetUsersModel) deleteUser(_ string) (err error) {
 	return
 }
 
+func (m *mockGetUsersModel) updateUser(_ User) (user User, err error) { return }
+
 // setupMockGetUsersHTTPHandler is helper function to remove duplication in setting up the HTTP test handlers in the unit tests
 func setupMockGetUsersHTTPHandler(url string) *httptest.ResponseRecorder {
 	recorder := httptest.NewRecorder()
@@ -68,6 +70,7 @@ func setupMockGetUsersHTTPHandler(url string) *httptest.ResponseRecorder {
 	return recorder
 }
 
+// TestListUsersWithoutQueryParams tests listing users with no query params (using the paging defaults)
 func TestListUsersWithoutQueryParams(t *testing.T) {
 	var err error
 	rec := setupMockGetUsersHTTPHandler("/users")
@@ -85,6 +88,7 @@ func TestListUsersWithoutQueryParams(t *testing.T) {
 	assert.Equal(t, 1, resp.Users[0].UserID)
 }
 
+// TestListUsersWithNameFilter tests listing users when a name_filter query parameter has been applied
 func TestListUsersWithNameFilter(t *testing.T) {
 	var err error
 	rec := setupMockGetUsersHTTPHandler("/users?name_filter=bob")
@@ -102,6 +106,7 @@ func TestListUsersWithNameFilter(t *testing.T) {
 	assert.Equal(t, 3, resp.Users[1].UserID)
 }
 
+// TestListUsersWithPagination tests using the pagination query parameters whilst listing users
 func TestListUsersWithPagination(t *testing.T) {
 	var err error
 	rec := setupMockGetUsersHTTPHandler("/users?per_page=3&page=2")
@@ -119,6 +124,7 @@ func TestListUsersWithPagination(t *testing.T) {
 	assert.Equal(t, 4, resp.Users[0].UserID)
 }
 
+// TestListUsersPerPageTooLarge tests for when a page size has been requested which exceeds the built in limit
 func TestListUsersPerPageTooLarge(t *testing.T) {
 	var err error
 	rec := setupMockGetUsersHTTPHandler("/users?per_page=3000")
@@ -133,6 +139,7 @@ func TestListUsersPerPageTooLarge(t *testing.T) {
 	assert.Contains(t, resp.Message, "per_page query string must be an integer between")
 }
 
+// TestListUsersPageNotFound tests for when a page has been requested which exceeds the number of user resources stored (based on total count)
 func TestListUsersPageNotFound(t *testing.T) {
 	var err error
 	rec := setupMockGetUsersHTTPHandler("/users?page=1000")

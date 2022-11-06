@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-// mockGetUsersModel is used to mock the Postgres DB calls
+// mockDeleteUserModel is used to mock the Postgres DB calls
 type mockDeleteUserModel struct{}
 
 func (m *mockDeleteUserModel) queryUsers(_, _ int, _ string) (users []User, err error) {
@@ -29,9 +29,9 @@ func (m *mockDeleteUserModel) queryRecordCount(_, logonNameFilter string) (count
 	}
 }
 
-func (m *mockDeleteUserModel) deleteUser(_ string) error {
-	return nil
-}
+func (m *mockDeleteUserModel) deleteUser(_ string) (err error) { return }
+
+func (m *mockDeleteUserModel) updateUser(_ User) (user User, err error) { return }
 
 func setupMockDeleteUserHTTPHandler(logonName string) *httptest.ResponseRecorder {
 	recorder := httptest.NewRecorder()
@@ -45,11 +45,13 @@ func setupMockDeleteUserHTTPHandler(logonName string) *httptest.ResponseRecorder
 	return recorder
 }
 
+// TestDeleteUser tests deleting a user
 func TestDeleteUser(t *testing.T) {
 	rec := setupMockDeleteUserHTTPHandler("testuser6")
 	assert.Equal(t, 204, rec.Code)
 }
 
+// TestDeleteNotFoundUser tests attempting to delete a user which does not exist in the DB
 func TestDeleteNotFoundUser(t *testing.T) {
 	rec := setupMockDeleteUserHTTPHandler("testuser7")
 	assert.Equal(t, 404, rec.Code)

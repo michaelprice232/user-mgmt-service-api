@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// mockGetUsersModel is used to mock the Postgres DB calls
+// mockPostUserModel is used to mock the Postgres DB calls
 type mockPostUserModel struct{}
 
 func (m *mockPostUserModel) queryUsers(_, _ int, _ string) (users []User, err error) {
@@ -38,6 +38,8 @@ func (m *mockPostUserModel) addUser(user User) (User, error) {
 func (m *mockPostUserModel) deleteUser(_ string) (err error) {
 	return
 }
+
+func (m *mockPostUserModel) updateUser(_ User) (user User, err error) { return }
 
 func setupMockPostUserHTTPHandler(body bytes.Buffer) *httptest.ResponseRecorder {
 	recorder := httptest.NewRecorder()
@@ -73,6 +75,7 @@ func postRequestHelperFailure(user User, t *testing.T) (*httptest.ResponseRecord
 	return rec, resp
 }
 
+// TestAddUser tests adding a new user
 func TestAddUser(t *testing.T) {
 	user := User{
 		LogonName: "testuser1",
@@ -87,6 +90,7 @@ func TestAddUser(t *testing.T) {
 	assert.Equal(t, user.Email, resp.Email)
 }
 
+// TestAddUserLogonAlreadyTaken tests attempting to add a new user when the logon_name is already taken in the DB
 func TestAddUserLogonAlreadyTaken(t *testing.T) {
 	user := User{
 		LogonName: "testuser2",
@@ -100,6 +104,7 @@ func TestAddUserLogonAlreadyTaken(t *testing.T) {
 	assert.Contains(t, fmt.Sprintf("logon_name '%s' already taken. Please choose another one", user.LogonName), resp.Message)
 }
 
+// TestAddUserFieldLengthTooLong tests that the validation around field lengths is working as expected
 func TestAddUserFieldLengthTooLong(t *testing.T) {
 	longFieldName := "qwertyuiopqwertyuiopqwertyuiop"
 	user := User{
@@ -114,6 +119,7 @@ func TestAddUserFieldLengthTooLong(t *testing.T) {
 	assert.Contains(t, resp.Message, fmt.Sprintf("validating request payload field lengths: logon_name maximum lengh is 20. Currently %d", len(longFieldName)))
 }
 
+// TestAddUserInvalidEmailFieldFormat tests that the validation around email field format is working as expected
 func TestAddUserInvalidEmailFieldFormat(t *testing.T) {
 	badEmailFormat := "test3@"
 	user := User{
@@ -128,6 +134,7 @@ func TestAddUserInvalidEmailFieldFormat(t *testing.T) {
 	assert.Contains(t, resp.Message, fmt.Sprintf("'%s' not a valid email address field:", badEmailFormat))
 }
 
+// TestAddUserPassedTheUserLogonField tests that an unsupported field - user_id - is handled correctly
 func TestAddUserPassedTheUserLogonField(t *testing.T) {
 	user := User{
 		UserID:    3, // not supported in the request payload

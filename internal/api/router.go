@@ -18,8 +18,8 @@ func RunAPIServer() {
 	r.HandleFunc("/users", EnvConfig.listUsers).Methods("GET")
 	r.HandleFunc("/users", EnvConfig.postUser).Methods("POST")
 	r.HandleFunc("/users/{logon_name}", EnvConfig.deleteUser).Methods("DELETE")
+	r.HandleFunc("/users/{logon_name}", EnvConfig.putUser).Methods("PUT")
 
-	// todo: enable graceful shutdowns from the appropriate OS signals
 	srv := &http.Server{
 		Addr:         serverAddr,
 		WriteTimeout: time.Second * 15,

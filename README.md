@@ -13,6 +13,7 @@ For request/response/error models please see [types](internal/api/types.go) or s
 |                            |                                                                                                                       | **name_filter**: return users which have a full_name which match this wildcard search |                      |                       |
 | POST /users                | Add a new user. User logon_name must be unique. user_id is auto generated and cannot be passed in the request payload | N/A                                                                                   | User                 | User                  |
 | DELETE /users/<logon_name> | Delete a user from the database based on their logon_name                                                             | N/A                                                                                   | N/A                  | N/A                   |
+| PUT /users/<logon_name>    | Update an existing user. Supports the full_name & email fields or both                                                | N/A                                                                                   | User                 | User                  |
 
 
 ## How to run
@@ -58,6 +59,17 @@ make test
 #  Delete a user
 % curl -s -i -X DELETE "${url}/users/susan9"
 HTTP/1.1 204 No Content
+
+# Update a user
+% curl -s -X PUT "${url}/users/holly0" \
+  -H 'Content-Type: application/json' \
+  -d '{"full_name":"Holly Updated","email":"holly.updated@email.com"}' | jq
+{
+  "user_id": 6,
+  "logon_name": "holly0",
+  "full_name": "Holly Updated",
+  "email": "holly.updated@email.com"
+}
 
 # Listing all users 
 % curl --silent "${url}/users" | jq
@@ -160,7 +172,7 @@ HTTP/1.1 204 No Content
 - [x] Add GET /users
 - [x] Add POST /users
 - [x] Add DELETE /users/<user> endpoint
-- [ ] Add PUT /users/<user> endpoint
+- [x] Add PUT /users/<user> endpoint
 - [ ] Add health endpoint suitable for K8s
 - [ ] Enable graceful shutdowns of HTTP server suitable for K8s
 - [ ] Add OpenAPI docs
