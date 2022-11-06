@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -43,7 +44,10 @@ func (m *mockPostUserModel) updateUser(_ User) (user User, err error) { return }
 
 func setupMockPostUserHTTPHandler(body bytes.Buffer) *httptest.ResponseRecorder {
 	recorder := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/users", &body)
+	req, err := http.NewRequest("POST", "/users", &body)
+	if err != nil {
+		log.Fatal("creating new HTTP POST /users request")
+	}
 	env := &Env{UsersDB: &mockPostUserModel{}}
 	http.HandlerFunc(env.postUser).ServeHTTP(recorder, req)
 
@@ -52,10 +56,13 @@ func setupMockPostUserHTTPHandler(body bytes.Buffer) *httptest.ResponseRecorder 
 
 func postRequestHelperSuccess(user User, t *testing.T) (*httptest.ResponseRecorder, User) {
 	var buf bytes.Buffer
-	_ = json.NewEncoder(&buf).Encode(user)
+	err := json.NewEncoder(&buf).Encode(user)
+	if err != nil {
+		log.Fatal("streaming JSON string into buffer for POST /users request")
+	}
 	rec := setupMockPostUserHTTPHandler(buf)
 	var resp User
-	err := json.Unmarshal([]byte(rec.Body.String()), &resp)
+	err = json.Unmarshal([]byte(rec.Body.String()), &resp)
 	if err != nil {
 		t.Fatal("unable to unmarshal JSON response")
 	}
@@ -64,11 +71,14 @@ func postRequestHelperSuccess(user User, t *testing.T) (*httptest.ResponseRecord
 
 func postRequestHelperFailure(user User, t *testing.T) (*httptest.ResponseRecorder, JsonHTTPErrorResponse) {
 	var buf bytes.Buffer
-	_ = json.NewEncoder(&buf).Encode(user)
+	err := json.NewEncoder(&buf).Encode(user)
+	if err != nil {
+		log.Fatal("streaming JSON string into buffer for POST /users request")
+	}
 	rec := setupMockPostUserHTTPHandler(buf)
 
 	var resp JsonHTTPErrorResponse
-	err := json.Unmarshal([]byte(rec.Body.String()), &resp)
+	err = json.Unmarshal([]byte(rec.Body.String()), &resp)
 	if err != nil {
 		t.Fatal("unable to unmarshal JSON response")
 	}

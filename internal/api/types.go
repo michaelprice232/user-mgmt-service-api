@@ -10,6 +10,17 @@ type Env struct {
 		deleteUser(string) error
 		updateUser(User) (User, error)
 	}
+	DBCredentials DBCredentials
+	BuildVersion  string
+}
+
+type DBCredentials struct {
+	HostName   string
+	Port       uint
+	DBName     string
+	DBUsername string
+	DBPassword string
+	SSLMode    string
 }
 
 type UserModel struct {

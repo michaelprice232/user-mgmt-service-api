@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -35,7 +36,10 @@ func (m *mockDeleteUserModel) updateUser(_ User) (user User, err error) { return
 
 func setupMockDeleteUserHTTPHandler(logonName string) *httptest.ResponseRecorder {
 	recorder := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", fmt.Sprintf("/users/%s", logonName), nil)
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("/users/%s", logonName), nil)
+	if err != nil {
+		log.Fatal("creating new DELETE users request")
+	}
 	env := &Env{UsersDB: &mockDeleteUserModel{}}
 
 	// Need to create a router so that the URI parameters (logon_name) are picked up

@@ -4,10 +4,13 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"strconv"
 
 	log "github.com/sirupsen/logrus"
 	"user-mgmt-service-api/internal/api"
 )
+
+var BuildVersion string
 
 func init() {
 	var level log.Level
@@ -34,18 +37,27 @@ func init() {
 	}
 	log.Infof("Log level: %v\n", level)
 
-	dbName := RequireStringEnvar("database_name")
-	dbUsername := RequireStringEnvar("database_username")
-	dbPassword := RequireStringEnvar("database_password")
-	dbSslMode := RequireStringEnvar("database_ssl_mode")
+	// Load DB credentials and start SQL DB connection pool
+	api.EnvConfig = &api.Env{DBCredentials: api.DBCredentials{
+		HostName:   RequireStringEnvar("database_host_name"),
+		Port:       uint(RequireIntEnvar("database_port")),
+		DBName:     RequireStringEnvar("database_name"),
+		DBUsername: RequireStringEnvar("database_username"),
+		DBPassword: RequireStringEnvar("database_password"),
+		SSLMode:    RequireStringEnvar("database_ssl_mode")}}
 
-	db, err := sql.Open("postgres", fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s", dbUsername, dbPassword, dbName, dbSslMode))
+	sqlConnection := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+		api.EnvConfig.DBCredentials.HostName, api.EnvConfig.DBCredentials.Port, api.EnvConfig.DBCredentials.DBUsername,
+		api.EnvConfig.DBCredentials.DBPassword, api.EnvConfig.DBCredentials.DBName, api.EnvConfig.DBCredentials.SSLMode)
+
+	db, err := sql.Open("postgres", sqlConnection)
 	if err != nil {
 		log.WithError(err).Fatal("opening DB connection pool")
 	}
 
-	api.EnvConfig = &api.Env{UsersDB: &api.UserModel{DB: db}}
-
+	// Set the git commit version from linker flags at build time
+	api.EnvConfig.BuildVersion = BuildVersion
+	api.EnvConfig.UsersDB = &api.UserModel{DB: db}
 }
 
 func main() {
@@ -58,4 +70,16 @@ func RequireStringEnvar(key string) string {
 		log.Fatalf("envar '%s' not set. Exiting", key)
 	}
 	return value
+}
+
+func RequireIntEnvar(key string) int64 {
+	value := os.Getenv(key)
+	if value == "" {
+		log.Fatalf("envar '%s' not set. Exiting", key)
+	}
+	i, err := strconv.ParseInt(value, 10, 64)
+	if err != nil {
+		log.Fatalf("unable to convert envar '%s' into an integer. Exiting", key)
+	}
+	return i
 }
