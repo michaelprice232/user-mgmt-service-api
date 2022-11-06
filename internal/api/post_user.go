@@ -57,6 +57,12 @@ func validateRequestPayload(user User, env *Env, w http.ResponseWriter, r *http.
 		return err
 	}
 
+	if user.UserID != 0 {
+		resp1 := "passing a user_id in the request payload is not supported"
+		jsonHTTPErrorResponseWriter(w, r, 400, fmt.Sprintf(resp1))
+		return fmt.Errorf(resp1)
+	}
+
 	err = validateEmailField(user.Email)
 	if err != nil {
 		jsonHTTPErrorResponseWriter(w, r, 400, fmt.Sprintf("validating email field format: %v", err))
@@ -68,9 +74,9 @@ func validateRequestPayload(user User, env *Env, w http.ResponseWriter, r *http.
 		jsonHTTPErrorResponseWriter(w, r, 400, fmt.Sprintf("validating logon_name uniqueness: %v", err))
 		return err
 	} else if found {
-		resp := fmt.Sprintf("logon_name '%s' already taken. Please choose another one", user.LogonName)
-		jsonHTTPErrorResponseWriter(w, r, 400, resp)
-		return fmt.Errorf(resp)
+		resp2 := fmt.Sprintf("logon_name '%s' already taken. Please choose another one", user.LogonName)
+		jsonHTTPErrorResponseWriter(w, r, 400, resp2)
+		return fmt.Errorf(resp2)
 	}
 
 	return nil

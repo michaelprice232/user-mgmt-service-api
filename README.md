@@ -6,13 +6,13 @@ L&D project containing a user management REST API exposing CRUD endpoints, writt
 
 For request/response/error models please see [types](internal/api/types.go) or see [example output below](https://github.com/michaelprice232/user-mgmt-service-api#example-output). Currently supported endpoints:
 
-| Endpoint                   | Description                                                               | Query Strings                                                                         | Request Payload Type | Response Payload Type | 
-|----------------------------|---------------------------------------------------------------------------|---------------------------------------------------------------------------------------|----------------------|-----------------------|
-| GET /users                 | List the users in the database. Supports pagination and filtering by name | **per_page**: how many users to display in each returned page                         | N/A (no payload)     | UsersResponse         |
-|                            |                                                                           | **page**: page number to return                                                       |                      |                       |
-|                            |                                                                           | **name_filter**: return users which have a full_name which match this wildcard search |                      |                       |
-| POST /users                | Add a new user. User logon_name must be unique                            | N/A                                                                                   | User                 | User                  |
-| DELETE /users/<logon_name> | Delete a user from the database based on their logon_name                 | N/A                                                                                   | N/A                  | N/A                   |
+| Endpoint                   | Description                                                                                                           | Query Strings                                                                         | Request Payload Type | Response Payload Type | 
+|----------------------------|-----------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|----------------------|-----------------------|
+| GET /users                 | List the users in the database. Supports pagination and filtering by name                                             | **per_page**: how many users to display in each returned page                         | N/A (no payload)     | UsersResponse         |
+|                            |                                                                                                                       | **page**: page number to return                                                       |                      |                       |
+|                            |                                                                                                                       | **name_filter**: return users which have a full_name which match this wildcard search |                      |                       |
+| POST /users                | Add a new user. User logon_name must be unique. user_id is auto generated and cannot be passed in the request payload | N/A                                                                                   | User                 | User                  |
+| DELETE /users/<logon_name> | Delete a user from the database based on their logon_name                                                             | N/A                                                                                   | N/A                  | N/A                   |
 
 
 ## How to run
@@ -163,6 +163,7 @@ HTTP/1.1 204 No Content
 - [ ] Add PUT /users/<user> endpoint
 - [ ] Add health endpoint suitable for K8s
 - [ ] Enable graceful shutdowns of HTTP server suitable for K8s
+- [ ] Add OpenAPI docs
 - [ ] Instrument with Prometheus library
 - [ ] Instrument with OpenTelemetry client
 - [ ] Integrate with GitHub Actions for running unit tests, linters & security scanner

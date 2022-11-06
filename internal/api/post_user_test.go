@@ -127,3 +127,17 @@ func TestAddUserInvalidEmailFieldFormat(t *testing.T) {
 	assert.Equal(t, 400, resp.Code)
 	assert.Contains(t, resp.Message, fmt.Sprintf("'%s' not a valid email address field:", badEmailFormat))
 }
+
+func TestAddUserPassedTheUserLogonField(t *testing.T) {
+	user := User{
+		UserID:    3, // not supported in the request payload
+		LogonName: "testuser4",
+		FullName:  "Test User 4",
+		Email:     "test4@email.com",
+	}
+	rec, resp := postRequestHelperFailure(user, t)
+
+	assert.Equal(t, 400, rec.Code)
+	assert.Equal(t, 400, resp.Code)
+	assert.Equal(t, "passing a user_id in the request payload is not supported", resp.Message)
+}
