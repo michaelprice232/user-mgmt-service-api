@@ -19,3 +19,6 @@ prune-docker:
 
 test:
 	go test user-mgmt-service-api/internal/api
+
+version:
+	go run -ldflags="-X 'main.BuildVersion=$(BUILD_VERSION)'" cmd/main.go --version

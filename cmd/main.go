@@ -1,9 +1,14 @@
 package main
 
 import (
-	log "github.com/sirupsen/logrus"
+	"flag"
+	"fmt"
 	"os"
+	"runtime"
+
 	"user-mgmt-service-api/internal/api"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var BuildVersion string // Set the git commit version from linker flags at build time
@@ -32,6 +37,13 @@ func init() {
 		log.SetLevel(level)
 	}
 	log.Infof("Log level: %v\n", level)
+
+	version := flag.Bool("version", false, "Returns the version of user-mgmt-service-api binary")
+	flag.Parse()
+	if *version {
+		fmt.Printf("user-mgmt-service-api version: %s (OS: %s) (Arch: %s)\n", BuildVersion, runtime.GOOS, runtime.GOARCH)
+		os.Exit(0)
+	}
 
 	api.EnvConfig, err = api.OpenDBConnection()
 	if err != nil {
