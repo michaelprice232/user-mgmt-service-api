@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/mail"
+	"os"
+	"strconv"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -95,4 +97,26 @@ func validateEmailField(email string) error {
 		return fmt.Errorf("'%s' not a valid email address field: %v", email, err)
 	}
 	return nil
+}
+
+// RequireStringEnvar returns a string envar and fatally exits if not set
+func RequireStringEnvar(key string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		log.Fatalf("envar '%s' not set. Exiting", key)
+	}
+	return value
+}
+
+// RequireIntEnvar returns an int envar and fatally exits if not yet set
+func RequireIntEnvar(key string) int64 {
+	value := os.Getenv(key)
+	if value == "" {
+		log.Fatalf("envar '%s' not set. Exiting", key)
+	}
+	i, err := strconv.ParseInt(value, 10, 64)
+	if err != nil {
+		log.Fatalf("unable to convert envar '%s' into an integer. Exiting", key)
+	}
+	return i
 }

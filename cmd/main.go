@@ -1,16 +1,12 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
-	"os"
-	"strconv"
-
 	log "github.com/sirupsen/logrus"
+	"os"
 	"user-mgmt-service-api/internal/api"
 )
 
-var BuildVersion string
+var BuildVersion string // Set the git commit version from linker flags at build time
 
 func init() {
 	var level log.Level
@@ -37,49 +33,14 @@ func init() {
 	}
 	log.Infof("Log level: %v\n", level)
 
-	// Load DB credentials and start SQL DB connection pool
-	api.EnvConfig = &api.Env{DBCredentials: api.DBCredentials{
-		HostName:   RequireStringEnvar("database_host_name"),
-		Port:       uint(RequireIntEnvar("database_port")),
-		DBName:     RequireStringEnvar("database_name"),
-		DBUsername: RequireStringEnvar("database_username"),
-		DBPassword: RequireStringEnvar("database_password"),
-		SSLMode:    RequireStringEnvar("database_ssl_mode")}}
-
-	sqlConnection := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-		api.EnvConfig.DBCredentials.HostName, api.EnvConfig.DBCredentials.Port, api.EnvConfig.DBCredentials.DBUsername,
-		api.EnvConfig.DBCredentials.DBPassword, api.EnvConfig.DBCredentials.DBName, api.EnvConfig.DBCredentials.SSLMode)
-
-	db, err := sql.Open("postgres", sqlConnection)
+	api.EnvConfig, err = api.OpenDBConnection()
 	if err != nil {
-		log.WithError(err).Fatal("opening DB connection pool")
+		log.WithError(err).Fatal("opening DB connection")
 	}
 
-	// Set the git commit version from linker flags at build time
 	api.EnvConfig.BuildVersion = BuildVersion
-	api.EnvConfig.UsersDB = &api.UserModel{DB: db}
 }
 
 func main() {
 	api.RunAPIServer()
-}
-
-func RequireStringEnvar(key string) string {
-	value := os.Getenv(key)
-	if value == "" {
-		log.Fatalf("envar '%s' not set. Exiting", key)
-	}
-	return value
-}
-
-func RequireIntEnvar(key string) int64 {
-	value := os.Getenv(key)
-	if value == "" {
-		log.Fatalf("envar '%s' not set. Exiting", key)
-	}
-	i, err := strconv.ParseInt(value, 10, 64)
-	if err != nil {
-		log.Fatalf("unable to convert envar '%s' into an integer. Exiting", key)
-	}
-	return i
 }

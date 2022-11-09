@@ -115,3 +115,26 @@ func (m *UserModel) updateUser(user User) (User, error) {
 
 	return user, nil
 }
+
+// OpenDBConnection opens a Postgres DB connection pool
+func OpenDBConnection() (*Env, error) {
+	EnvConfig = &Env{DBCredentials: DBCredentials{
+		HostName:   RequireStringEnvar("database_host_name"),
+		Port:       uint(RequireIntEnvar("database_port")),
+		DBName:     RequireStringEnvar("database_name"),
+		DBUsername: RequireStringEnvar("database_username"),
+		DBPassword: RequireStringEnvar("database_password"),
+		SSLMode:    RequireStringEnvar("database_ssl_mode")}}
+
+	sqlConnection := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+		EnvConfig.DBCredentials.HostName, EnvConfig.DBCredentials.Port, EnvConfig.DBCredentials.DBUsername,
+		EnvConfig.DBCredentials.DBPassword, EnvConfig.DBCredentials.DBName, EnvConfig.DBCredentials.SSLMode)
+
+	db, err := sql.Open("postgres", sqlConnection)
+	if err != nil {
+		return EnvConfig, fmt.Errorf("opening DB connection: %v", err)
+	}
+	EnvConfig.UsersDB = &UserModel{DB: db}
+
+	return EnvConfig, nil
+}

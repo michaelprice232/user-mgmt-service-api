@@ -170,15 +170,15 @@ HTTP/1.1 204 No Content
 ```
 
 ## Remaining Tasks
-- [x] Add GET /users
-- [x] Add POST /users
-- [x] Add DELETE /users/<user> endpoint
-- [x] Add PUT /users/<user> endpoint
-- [x] Add health endpoint suitable for K8s
-- [ ] Enable graceful shutdowns of HTTP server suitable for K8s
+- [x] Add GET /users endpoint
+- [x] Add POST /users endpoint
+- [x] Add DELETE /users/{user} endpoint
+- [x] Add PUT /users/{user} endpoint
+- [x] Add GET /health endpoint (k8s probes)
+- [ ] Enable graceful shutdowns of HTTP server (k8s pod lifecycle)
 - [ ] Add OpenAPI docs
 - [ ] Instrument with Prometheus library
 - [ ] Instrument with OpenTelemetry client
-- [ ] Integrate with GitHub Actions for running unit tests, linters & security scanner
+- [ ] Integrate with GitHub Actions for running unit tests, linter, security scanner & Docker image build/push
 - [ ] Add Terraform for deploying into K8s cluster
 - [ ] Add Terratest smoke tests for validating deployment
