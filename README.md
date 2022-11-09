@@ -175,7 +175,7 @@ HTTP/1.1 204 No Content
 - [x] Add DELETE /users/{user} endpoint
 - [x] Add PUT /users/{user} endpoint
 - [x] Add GET /health endpoint (k8s probes)
-- [ ] Enable graceful shutdowns of HTTP server (k8s pod lifecycle)
+- [x] Enable graceful shutdowns of HTTP server (k8s pod lifecycle)
 - [ ] Add OpenAPI docs
 - [ ] Instrument with Prometheus library
 - [ ] Instrument with OpenTelemetry client

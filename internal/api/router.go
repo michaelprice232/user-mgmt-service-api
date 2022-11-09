@@ -1,8 +1,12 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -14,6 +18,7 @@ import (
 const (
 	dbHealthCheckTimeOutSeconds = 5
 	webServerPort               = 8080
+	gracefulShutdownTime        = time.Second * 10
 )
 
 var EnvConfig *Env
@@ -57,5 +62,21 @@ func RunAPIServer() {
 	}
 
 	log.Infof("Running webserver on: %s\n", serverAddr)
-	log.Fatal(srv.ListenAndServe())
+
+	go func() {
+		if err = srv.ListenAndServe(); err != http.ErrServerClosed {
+			log.WithError(err).Error("Problems shutting down HTTP server")
+		} else {
+			log.Infof("HTTP server shutdown ok")
+		}
+	}()
+
+	// Graceful shutdown for SIGTERM & SIGINT OS signals
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+	signalReceived := <-c
+	log.Infof("OS signal received: %v", signalReceived)
+	ctx, cancel := context.WithTimeout(context.Background(), gracefulShutdownTime)
+	defer cancel()
+	_ = srv.Shutdown(ctx)
 }
