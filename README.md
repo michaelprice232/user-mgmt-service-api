@@ -26,7 +26,7 @@ Pre-reqs:
 Steps:
 ```shell
 # Start the Postgres DB (seeds DB & records during startup), builds and starts the Go webserver
-make run-webserver
+make run
 
 # Run some curl commands for testing the endpoints. Will be updated as more endpoints are added
 make test-endpoints
