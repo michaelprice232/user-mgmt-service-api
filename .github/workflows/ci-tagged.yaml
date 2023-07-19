@@ -1,0 +1,54 @@
+name: Build Tags
+
+env:
+  CONFIG_REPO_NAME: argocd-config
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  docker-build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: 'michaelprice129/user-mgmt-service-api'
+          tags: 'type=semver,pattern={{version}}'
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          
+          
+  promote-to-dev-environment:
+    runs-on: ubuntu-latest
+    needs: docker-build-and-push
+    steps:
+      - run: |
+          echo "promoting into dev environment!"
+          git config --global user.email michaelprice232@outlook.com && git config --global user.name michaelprice232
+          echo "cloning config repo $CONFIG_REPO_NAME"
+          git clone https://oauth2:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository_owner }}/$CONFIG_REPO_NAME.git
+          cd $CONFIG_REPO_NAME
+          echo "updating appVersion with ${{ github.ref_name }} in Chart.yaml"
+          sed -i "s,appVersion:.*,appVersion:\ \"${{ github.ref_name }}\"," test-app/Chart.yaml
+          git add . && git commit -m "updated appVersion with ${{ github.ref_name }} in Chart.yaml"
+          git push

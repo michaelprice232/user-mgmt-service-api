@@ -1,7 +1,5 @@
 # user-mgmt-service-api
 
-Work in progress
-
 L&D project containing a user management REST API exposing CRUD endpoints, written in Go with a Postgres DB
 
 For request/response/error models please see [types](internal/api/types.go) or see [example output below](https://github.com/michaelprice232/user-mgmt-service-api#example-output). Currently supported endpoints:
