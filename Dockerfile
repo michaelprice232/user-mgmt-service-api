@@ -1,9 +1,6 @@
-FROM golang:1.20 AS build
+FROM golang:1.23 AS build
 
 WORKDIR /usr/src/app
-
-COPY ./certs/ca-cert.crt /usr/local/share/ca-certificates/
-RUN update-ca-certificates
 
 COPY go.mod go.sum ./
 RUN go mod download && go mod verify

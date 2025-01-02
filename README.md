@@ -31,7 +31,7 @@ make test-endpoints
 
 # Stop docker-compose Postgres database and remove the Docker volume so that the DB init scripts are run next time
 # Make sure to also stop the Go webserver process. It is not running as a Docker container yet
-make stop-database-and-delete-volume
+make cleanup
 ```
 
 ## Unit Tests
@@ -174,9 +174,9 @@ HTTP/1.1 204 No Content
 - [x] Add PUT /users/{user} endpoint
 - [x] Add GET /health endpoint (k8s probes)
 - [x] Enable graceful shutdowns of HTTP server (k8s pod lifecycle)
+- [ ] Integrate with GitHub Actions for running unit tests, linter, security scanner & Docker image build/push
 - [ ] Add OpenAPI docs
 - [ ] Instrument with Prometheus library
 - [ ] Instrument with OpenTelemetry client
-- [ ] Integrate with GitHub Actions for running unit tests, linter, security scanner & Docker image build/push
 - [ ] Add Terraform for deploying into K8s cluster
 - [ ] Add Terratest smoke tests for validating deployment

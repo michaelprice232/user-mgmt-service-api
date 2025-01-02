@@ -6,7 +6,7 @@ import (
 	"os"
 	"runtime"
 
-	"user-mgmt-service-api/internal/api"
+	"github.com/michaelprice232/user-mgmt-service-api/internal/api"
 
 	log "github.com/sirupsen/logrus"
 )

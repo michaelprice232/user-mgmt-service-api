@@ -2,12 +2,13 @@ package api
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/stretchr/testify/assert"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/assert"
 )
 
 // mockDeleteUserModel is used to mock the Postgres DB calls
