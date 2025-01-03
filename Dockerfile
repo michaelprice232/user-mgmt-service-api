@@ -1,8 +1,9 @@
-FROM --platform=$BUILDPLATFORM golang:1.23 AS build
+#FROM --platform=$BUILDPLATFORM golang:1.23 AS build
+FROM golang:1.23 AS build
 
-# These are made available when using the --platform docker build parameter
-ARG TARGETOS
-ARG TARGETARCH
+## These are made available when using the --platform docker build parameter
+#ARG TARGETOS
+#ARG TARGETARCH
 
 WORKDIR /usr/src/app
 
@@ -11,7 +12,7 @@ RUN go mod download && go mod verify
 
 COPY . .
 
-RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -o /usr/local/bin/app ./cmd/main.go
+RUN CGO_ENABLED=0 go build -o /usr/local/bin/app ./cmd/main.go
 
 FROM scratch
 
