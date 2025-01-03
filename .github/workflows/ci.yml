@@ -1,0 +1,57 @@
+name: CI
+on:
+  push
+
+permissions:
+  id-token: write   # required for requesting the JWT
+  contents: read    # required for actions/checkout
+
+jobs:
+  ECRUpload:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION : "eu-west-2"
+
+    steps:
+      - name: Clone git repo
+        uses: actions/checkout@v4
+
+      # Use OIDC rather than long-lived IAM credentials. OIDC provider and IAM role needs to be configured in AWS
+      # https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::633681147894:role/gh-actions-user-mgmt-service-api-workflow
+          role-session-name: GHActions-user-mgmt-service-api
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Required for multi-platform builds
+      # Using the "Cross Compilation" method rather than emulation. See Dockerfile variables
+      # https://docs.docker.com/build/ci/github-actions/multi-platform/
+      # https://docs.docker.com/build/building/multi-platform/#cross-compiling-a-go-application
+      - name: Set up Docker
+        uses: docker/setup-docker-action@v4
+        with:
+          daemon-config: |
+            {
+              "features": {
+                "containerd-snapshotter": true
+              }
+            }
+
+      # No Mac/darwin build is required as Docker Desktop supports the linux builds
+      - name: Build & push multi-architecture Docker image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: user-mgmt-service-api
+          IMAGE_TAG: ${{ github.sha }}
+          ARCHITECTURES: linux/amd64,linux/arm64
+        run: |
+          docker build --platform $ARCHITECTURES -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          echo Pushed $REGISTRY/$REPOSITORY:$IMAGE_TAG
