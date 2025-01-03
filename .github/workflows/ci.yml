@@ -9,12 +9,16 @@ permissions:
 jobs:
   ECRUpload:
     runs-on: ubuntu-latest
+
     env:
       AWS_REGION : "eu-west-2"
+
     steps:
-      - name: Git clone the repository
+      - name: Clone git repo
         uses: actions/checkout@v4
 
+      # Use OIDC rather than long-lived IAM credentials. OIDC provider and IAM role needs to be configured in AWS
+      # https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -27,7 +31,9 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       # Required for multi-platform builds
+      # Using the "Cross Compilation" method rather than emulation. See Dockerfile variables
       # https://docs.docker.com/build/ci/github-actions/multi-platform/
+      # https://docs.docker.com/build/building/multi-platform/#cross-compiling-a-go-application
       - name: Set up Docker
         uses: docker/setup-docker-action@v4
         with:
@@ -38,22 +44,13 @@ jobs:
               }
             }
 
-# I shouldn't need this for cross compilation builds
-#      - name: Set up QEMU
-#        uses: docker/setup-qemu-action@v3
-
+      # No Mac/darwin build is required as Docker Desktop supports the linux builds
       - name: Build & push multi-architecture Docker image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: user-mgmt-service-api
           IMAGE_TAG: ${{ github.sha }}
+          ARCHITECTURES: linux/amd64,linux/arm64
         run: |
-          docker build --platform linux/amd64,linux/arm64 -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker build --platform $ARCHITECTURES -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-
-#      - name: Build and push
-#        uses: docker/build-push-action@v6
-#        with:
-#          platforms: linux/amd64,linux/arm64
-#          load: true
-#          tags: ${{ steps.login-ecr.outputs.registry }}/user-mgmt-service-api:${{ github.sha }}
