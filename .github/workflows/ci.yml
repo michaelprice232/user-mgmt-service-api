@@ -26,12 +26,34 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build & push Docker image
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: user-mgmt-service-api
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+      # Required for multi-platform builds
+      # https://docs.docker.com/build/ci/github-actions/multi-platform/
+      - name: Set up Docker
+        uses: docker/setup-docker-action@v4
+        with:
+          daemon-config: |
+            {
+              "features": {
+                "containerd-snapshotter": true
+              }
+            }
 
+# I shouldn't need this for cross compilation builds
+#      - name: Set up QEMU
+#        uses: docker/setup-qemu-action@v3
+
+#      - name: Build & push Docker image
+#        env:
+#          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#          REPOSITORY: user-mgmt-service-api
+#          IMAGE_TAG: ${{ github.sha }}
+#        run: |
+#          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+#          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          load: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/user-mgmt-service-api:${{ github.sha }}
