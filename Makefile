@@ -1,10 +1,13 @@
 BUILD_VERSION := $(shell git rev-parse --short HEAD)
 
 run:
-	docker-compose up -d
+	HOSTPORT=8080 docker-compose up -d
+
+down:
+	docker-compose down
 
 cleanup:
-	docker-compose stop
+	docker-compose down
 	docker-compose rm --force
 	docker volume rm user-mgmt-service-api_db-data --force
 
@@ -14,8 +17,11 @@ test-endpoints:
 prune-docker:
 	docker system prune --all --volumes --force
 
-test:
+unit-tests:
 	go test ./...
+
+int-tests:
+	go test -tags=integration ./tests/integration
 
 version:
 	go run -ldflags="-X 'main.BuildVersion=$(BUILD_VERSION)'" cmd/main.go --version

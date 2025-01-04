@@ -23,7 +23,7 @@ services:
         BUILD_VERSION: $(BUILD_VERSION)
 
     ports:
-      - "8080:8080"
+      - "${HOSTPORT}:8080"
 
     environment:
       LOG_LEVEL: debug
