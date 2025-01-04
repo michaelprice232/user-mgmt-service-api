@@ -104,9 +104,9 @@ func extractAndValidateQueryParams(queryStrings url.Values) (queryParameters, er
 		perPage64, err = strconv.ParseInt(perPageEnv, 10, 64)
 		if err != nil || perPage64 <= 0 || perPage64 > maxPageSize {
 			if err != nil {
-				return params, fmt.Errorf("per_page query string must be an integer between 1->%d: %v", maxPageSize, err)
+				return params, fmt.Errorf("per_page query string must be an integer between 1 and %d: %v", maxPageSize, err)
 			} else {
-				return params, fmt.Errorf("per_page query string must be an integer between 1->%d", maxPageSize)
+				return params, fmt.Errorf("per_page query string must be an integer between 1 and %d", maxPageSize)
 			}
 
 		}
