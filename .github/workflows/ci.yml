@@ -10,7 +10,7 @@ jobs:
       - name: Clone git repo
         uses: actions/checkout@v4
 
-      # Get the go version from the mod file. Cache by default
+      # Get the go version from the mod file. Cache modules by default
       - name: setup-go
         uses: actions/setup-go@v5
         with:
