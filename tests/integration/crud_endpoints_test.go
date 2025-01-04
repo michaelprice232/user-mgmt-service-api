@@ -27,7 +27,7 @@ func TestUsingDockerCompose(t *testing.T) {
 		EnvVars: map[string]string{"HOSTPORT": hostPost},
 	}
 
-	defer docker.RunDockerCompose(t, &buildOptions, "down")
+	defer docker.RunDockerCompose(t, &buildOptions, "down", "--volumes")
 	docker.RunDockerCompose(t, &buildOptions, "up", "-d")
 
 	endpoints.CheckEndpoints(t, baseURL, maxRetries, timeBetweenRetries)

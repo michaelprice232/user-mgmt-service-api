@@ -19,7 +19,7 @@ curl -s "${url}/users?name_filter=bob" | jq
 echo
 
 echo  "Test Filtering & pagination: GET /users?name_filter=bob&per_page=1&page=2"
-curl -s "${url}/users?name_filter=bob&per_page=1&page=2" | jq
+curl -s "${url}/users?name_filter=bob&per_page=1&page=1" | jq
 echo
 
 # POST /users

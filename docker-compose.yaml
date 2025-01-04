@@ -2,9 +2,9 @@ services:
 
   db:
     hostname: db
-    image: postgres:13.8
+    image: postgres:16
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - user-mgmt-api-db-data:/var/lib/postgresql/data
 
       # Seed the database and records during initial startup. Will not run if the volume is already populated
       - ./sql:/docker-entrypoint-initdb.d
@@ -39,4 +39,4 @@ services:
       - db
 
 volumes:
-  db-data:
+  user-mgmt-api-db-data:
