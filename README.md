@@ -175,6 +175,8 @@ HTTP/1.1 204 No Content
 - [x] Add GET /health endpoint (k8s probes)
 - [x] Enable graceful shutdowns of HTTP server (k8s pod lifecycle)
 - [ ] Integrate with GitHub Actions for running unit tests, linter, security scanner & Docker image build/push
+- [ ] Add a GET endpoint for an individual user
+- [ ] Use primary keys in the REST URI's rather than logon names
 - [ ] Add OpenAPI docs
 - [ ] Instrument with Prometheus library
 - [ ] Instrument with OpenTelemetry client
