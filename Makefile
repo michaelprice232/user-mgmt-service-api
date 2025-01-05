@@ -4,7 +4,7 @@ run:
 	HOSTPORT=8080 docker-compose up -d --build
 
 down:
-	HOSTPORT=8080 docker-compose down
+	HOSTPORT=8080 docker-compose down --volumes
 
 unit-tests:
 	go test ./...
