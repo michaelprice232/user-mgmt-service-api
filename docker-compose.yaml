@@ -20,7 +20,7 @@ services:
     build:
       context: .
       args:
-        BUILD_VERSION: $(BUILD_VERSION)
+        BUILD_VERSION: "${BUILD_VERSION}"
 
     ports:
       - "${HOSTPORT}:8080"
