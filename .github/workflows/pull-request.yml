@@ -1,3 +1,5 @@
+# Build and push Docker image and then run E2E tests in AWS when raising a PR against the main branch
+# Other tests will also be triggered from the ci.yml workflow
 name: PR against main
 on:
   pull_request:
