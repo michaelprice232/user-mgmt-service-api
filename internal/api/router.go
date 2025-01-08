@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -41,7 +42,9 @@ func RunAPIServer() {
 		SkipOnErr: false,
 		Check: healthPg.New(healthPg.Config{
 			DSN: fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
-				EnvConfig.DBCredentials.DBUsername, EnvConfig.DBCredentials.DBPassword, EnvConfig.DBCredentials.HostName,
+				// Escape to avoid issues with special characters as we cannot quote in URLs
+				url.QueryEscape(EnvConfig.DBCredentials.DBUsername), url.QueryEscape(EnvConfig.DBCredentials.DBPassword),
+				EnvConfig.DBCredentials.HostName,
 				EnvConfig.DBCredentials.Port, EnvConfig.DBCredentials.DBName, EnvConfig.DBCredentials.SSLMode),
 		}),
 	})
