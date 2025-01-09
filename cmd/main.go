@@ -36,7 +36,7 @@ func init() {
 		}
 		log.SetLevel(level)
 	}
-	log.Infof("Log level: %v\n", level)
+	log.Infof("Log level: %v", level)
 
 	version := flag.Bool("version", false, "Returns the version of user-mgmt-service-api binary")
 	flag.Parse()
