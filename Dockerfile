@@ -6,7 +6,8 @@ FROM --platform=$BUILDPLATFORM golang:1.23 AS build
 ARG TARGETOS
 ARG TARGETARCH
 
-ARG BUILD_VERSION
+# Add default for when the version is not passed to the Docker build
+ARG BUILD_VERSION=dev
 
 WORKDIR /usr/src/app
 

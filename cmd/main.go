@@ -11,7 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var BuildVersion = "dev" // Set the git commit version from linker flags at build time
+var BuildVersion string // Set the git commit version from linker flags at build time
 
 func init() {
 	var level log.Level
@@ -36,7 +36,7 @@ func init() {
 		}
 		log.SetLevel(level)
 	}
-	log.Infof("Log level: %v\n", level)
+	log.Infof("Log level: %v", level)
 
 	version := flag.Bool("version", false, "Returns the version of user-mgmt-service-api binary")
 	flag.Parse()
