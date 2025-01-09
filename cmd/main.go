@@ -11,7 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var BuildVersion = "dev" // Set the git commit version from linker flags at build time
+var BuildVersion string // Set the git commit version from linker flags at build time
 
 func init() {
 	var level log.Level
