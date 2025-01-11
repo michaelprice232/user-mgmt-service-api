@@ -2,17 +2,15 @@ module "alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "~> 9.0"
 
-  # API limit of 32
-  name = substr(local.name, 0, 32)
+  name                       = substr(local.name, 0, 32) # API limit of 32
+  load_balancer_type         = "application"
+  vpc_id                     = module.vpc.vpc_id
+  subnets                    = module.vpc.public_subnets
+  enable_deletion_protection = false
 
-  load_balancer_type = "application"
-
-  vpc_id  = module.vpc.vpc_id
-  subnets = module.vpc.public_subnets
-
-  # Security Group
-  security_group_name        = "${local.name}-lb"
-  security_group_description = "Assigned to ${local.name} load balancer"
+  security_group_name            = "${local.name}-lb"
+  security_group_use_name_prefix = false
+  security_group_description     = "Assigned to ${local.name} load balancer"
   security_group_ingress_rules = {
     all_http = {
       from_port   = 80
@@ -26,6 +24,9 @@ module "alb" {
       ip_protocol = "-1"
       cidr_ipv4   = module.vpc.vpc_cidr_block
     }
+  }
+  security_group_tags = {
+    Name : "${local.name}-lb"
   }
 
   listeners = {
@@ -64,6 +65,4 @@ module "alb" {
       create_attachment = false
     }
   }
-
-  # tags = local.tags
 }

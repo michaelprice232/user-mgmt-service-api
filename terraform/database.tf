@@ -1,17 +1,18 @@
 module "db" {
   source  = "terraform-aws-modules/rds-aurora/aws"
-  version = "9.11.0"
+  version = "~> 9.0"
 
-  name           = local.name
-  engine         = "aurora-postgresql"
-  engine_version = var.db_engine_version
-  instance_class = var.db_instance_class
+  name                = local.name
+  engine              = "aurora-postgresql"
+  engine_version      = var.db_engine_version
+  instance_class      = var.db_instance_class
+  skip_final_snapshot = true
 
   instances = {
-    one = {} # Single writer instance
+    writer = {} # Single writer instance
   }
 
-  master_username             = var.db_super_user
+  master_username             = var.db_master_username
   manage_master_user_password = false
   master_password             = random_password.aurora_master_password.result
 
@@ -22,8 +23,9 @@ module "db" {
   subnets                = module.vpc.private_subnets
   db_subnet_group_name   = local.name
 
-  security_group_name        = "${local.name}-db"
-  security_group_description = "Assigned to ${local.name} Aurora cluster"
+  security_group_name            = "${local.name}-db"
+  security_group_description     = "Assigned to ${local.name} Aurora cluster"
+  security_group_use_name_prefix = false
   security_group_rules = {
     vpc_ingress = {
       cidr_blocks = [var.vpc_cidr_block]
