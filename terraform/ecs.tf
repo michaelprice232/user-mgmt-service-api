@@ -2,7 +2,10 @@ module "ecs_cluster" {
   source  = "terraform-aws-modules/ecs/aws"
   version = "~> 5.0"
 
-  cluster_name = var.environment
+  # Override the default of enabling Container Insights to keep costs down whilst this is just for E2E tests
+  cluster_settings = []
+
+  cluster_name = "${var.unique_identifier_prefix}-${var.environment}"
 }
 
 module "ecs_service" {

@@ -13,13 +13,18 @@ variable "vpc_cidr_block" {
 variable "environment" {
   type        = string
   description = "Which environment will be deployed into"
-  default     = "development"
+  default     = "dev"
 }
 
 variable "service_name" {
   type        = string
   description = "Name of the service being deployed"
   default     = "user-mgmt-service-api"
+}
+
+variable "unique_identifier_prefix" {
+  type        = string
+  description = "Unique identifier prefix to allow parallel deployments into AWS via the CI system without resource name clashes"
 }
 
 variable "db_engine_version" {
