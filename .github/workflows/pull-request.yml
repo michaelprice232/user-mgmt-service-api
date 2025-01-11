@@ -62,14 +62,13 @@ jobs:
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
           echo Pushed $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
-      - name: Build & push multi-architecture Docker image for db seeding
+      - name: Build & push Docker image for db seeding (single arch)
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: user-mgmt-service-api
           IMAGE_TAG: ${{ github.sha }}-db-seeding
-          ARCHITECTURES: linux/amd64,linux/arm64
         run: |
           BUILD_VERSION=$(git rev-parse --short HEAD)
-          docker build --platform $ARCHITECTURES -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg BUILD_VERSION=$BUILD_VERSION -f Dockerfile-db-seed .
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg BUILD_VERSION=$BUILD_VERSION -f Dockerfile-db-seed .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
           echo Pushed $REGISTRY/$REPOSITORY:$IMAGE_TAG
