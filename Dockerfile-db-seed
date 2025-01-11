@@ -1,0 +1,10 @@
+# Image used for seeding the database during E2E tests
+FROM alpine:3
+
+RUN apk add --update --no-cache postgresql-client
+
+RUN mkdir /sql-scripts
+
+COPY *.sql /sql-scripts
+
+ENTRYPOINT ["/usr/bin/psql"]

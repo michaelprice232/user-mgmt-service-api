@@ -13,7 +13,7 @@ permissions:
   contents: read    # required for actions/checkout
 
 jobs:
-  ECRUpload:
+  e2e-tests:
     runs-on: ubuntu-latest
 
     env:
@@ -50,8 +50,7 @@ jobs:
               }
             }
 
-      # No Mac/darwin build is required as Docker Desktop supports the linux builds
-      - name: Build & push multi-architecture Docker image
+      - name: Build & push multi-architecture Docker image for app
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: user-mgmt-service-api
@@ -60,5 +59,17 @@ jobs:
         run: |
           BUILD_VERSION=$(git rev-parse --short HEAD)
           docker build --platform $ARCHITECTURES -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg BUILD_VERSION=$BUILD_VERSION .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          echo Pushed $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      - name: Build & push multi-architecture Docker image for db seeding
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: user-mgmt-service-api
+          IMAGE_TAG: ${{ github.sha }}-db-seeding
+          ARCHITECTURES: linux/amd64,linux/arm64
+        run: |
+          BUILD_VERSION=$(git rev-parse --short HEAD)
+          docker build --platform $ARCHITECTURES -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg BUILD_VERSION=$BUILD_VERSION -f Dockerfile-db-seed .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
           echo Pushed $REGISTRY/$REPOSITORY:$IMAGE_TAG
