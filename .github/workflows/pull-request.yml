@@ -50,9 +50,6 @@ jobs:
               }
             }
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
       - name: Build & push multi-architecture Docker image for app
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -61,8 +58,13 @@ jobs:
           ARCHITECTURES: linux/amd64,linux/arm64
         run: |
           BUILD_VERSION=$(git rev-parse --short HEAD)
-          docker buildx build --platform $ARCHITECTURES -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg BUILD_VERSION=$BUILD_VERSION --push .
+          docker build --platform $ARCHITECTURES -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg BUILD_VERSION=$BUILD_VERSION .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
           echo Pushed $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      # Required when using emulation rather than cross compilation for multi-platform builds
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
       - name: Build & push multi-architecture Docker image for db seeding
         env:
