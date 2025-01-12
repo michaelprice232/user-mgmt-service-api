@@ -53,9 +53,6 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Build & push multi-architecture Docker image for app
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -64,8 +61,7 @@ jobs:
           ARCHITECTURES: linux/amd64,linux/arm64
         run: |
           BUILD_VERSION=$(git rev-parse --short HEAD)
-          docker build --platform $ARCHITECTURES -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg BUILD_VERSION=$BUILD_VERSION .
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker buildx build --platform $ARCHITECTURES -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg BUILD_VERSION=$BUILD_VERSION --push .
           echo Pushed $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
       - name: Build & push multi-architecture Docker image for db seeding
