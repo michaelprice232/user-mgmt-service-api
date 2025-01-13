@@ -49,6 +49,7 @@ jobs:
             }
 
       - name: Build & push multi-architecture Docker image for app
+        id: docker-image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: user-mgmt-service-api
@@ -59,13 +60,13 @@ jobs:
           docker build --platform $ARCHITECTURES -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg BUILD_VERSION=$BUILD_VERSION .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
           echo Pushed $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          echo "image=$REGISTRY/$REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
 
       # Required when using emulation rather than cross compilation for multi-platform builds
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
       - name: Build & push multi-architecture Docker image for db seeding
-        id: db-seeding-image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: user-mgmt-service-api
@@ -74,7 +75,6 @@ jobs:
         run: |
           docker buildx build --platform $ARCHITECTURES -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f ./db-seed/Dockerfile-db-seed --push .
           echo Pushed $REGISTRY/$REPOSITORY:$IMAGE_TAG
-          echo "image=$REGISTRY/$REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
 
       - name: setup-go
         uses: actions/setup-go@v5
@@ -83,7 +83,7 @@ jobs:
 
       - name: E2E tests
         env:
-          DOCKER_APP_IMAGE: ${{ steps.db-seeding-image.outputs.image }}
+          DOCKER_APP_IMAGE: ${{ steps.docker-image.outputs.image }}
         run: go test -tags=e2e -count=1 -v -timeout 60m ./tests/e2e
 
           
