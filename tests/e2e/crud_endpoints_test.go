@@ -4,21 +4,18 @@ package e2e
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
 	"os"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/michaelprice232/user-mgmt-service-api/internal/api"
 	"github.com/michaelprice232/user-mgmt-service-api/tests/endpoints"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
-	httphelper "github.com/gruntwork-io/terratest/modules/http-helper"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
@@ -69,18 +66,12 @@ func TestUsingAWS(t *testing.T) {
 	securityGroup := terraform.Output(t, terraformOptions, "fargate_task_security_group_id")
 	targetDefinitions := terraform.Output(t, terraformOptions, "db_seeding_task_definition_target")
 
-	// Check health endpoint
-	t.Run("Health endpoint", func(t *testing.T) {
-		url := fmt.Sprintf("%s/health", baseURL)
-		status, body := httphelper.HttpGet(t, url, &tls.Config{})
-		assert.Equal(t, status, 200)
-		assert.Contains(t, body, api.ServiceName)
-	})
-
 	seedDatabase(t, ecsClusterName, targetSubnet, securityGroup, targetDefinitions)
 
 	endpoints.CheckEndpoints(t, baseURL, httpMaxRetries, httpTimeBetweenRetries)
 }
+
+// todo: check the service is up to avoid race condition and also to validate the infra
 
 // seedDatabase prepares the database for E2E testing by creating a table and some sample data.
 func seedDatabase(t *testing.T, ecsClusterName, targetSubnet, securityGroup, targetDefinitions string) {

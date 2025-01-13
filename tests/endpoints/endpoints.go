@@ -114,6 +114,17 @@ func CheckEndpoints(t *testing.T, baseURL string, maxRetries int, timeBetweenRet
 		})
 	})
 
+	t.Run("GET /health", func(t *testing.T) {
+		url := fmt.Sprintf("%s/health", baseURLFormatted)
+		http_helper.HttpGetWithRetryWithCustomValidation(t, url, &tls.Config{}, maxRetries, timeBetweenRetries, func(statusCode int, responseBody string) bool {
+			if statusCode != http.StatusOK {
+				return false
+			}
+			assert.Contains(t, responseBody, "OK")
+			return true
+		})
+	})
+
 	// Successful POST requests
 	t.Run("POST /users", func(t *testing.T) {
 		// Add user
