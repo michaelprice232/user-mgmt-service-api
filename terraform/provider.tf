@@ -1,7 +1,5 @@
 provider "aws" {
   region = var.region
-  # todo: remove for OIDC
-  profile = "personal"
 
   default_tags {
     tags = {
@@ -10,4 +8,19 @@ provider "aws" {
       owner       = "Michael Price"
     }
   }
+}
+
+# Do not use any locking to enable parallel runs of the E2E tests in the CI system
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.0"
+    }
+  }
+  required_version = "~> 1.10.0"
 }

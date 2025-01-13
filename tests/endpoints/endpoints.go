@@ -1,4 +1,4 @@
-//go:build integration
+//go:build integration || e2e
 
 package endpoints
 
@@ -110,6 +110,17 @@ func CheckEndpoints(t *testing.T, baseURL string, maxRetries int, timeBetweenRet
 			resp := unmarshalJSONErrorResponse(t, responseBody)
 			assert.Equal(t, http.StatusNotFound, resp.Code, "Expected bad response code to be in the response body")
 			assert.Contains(t, resp.Message, "not found", "Expected details to be in the error message")
+			return true
+		})
+	})
+
+	t.Run("GET /health", func(t *testing.T) {
+		url := fmt.Sprintf("%s/health", baseURLFormatted)
+		http_helper.HttpGetWithRetryWithCustomValidation(t, url, &tls.Config{}, maxRetries, timeBetweenRetries, func(statusCode int, responseBody string) bool {
+			if statusCode != http.StatusOK {
+				return false
+			}
+			assert.Contains(t, responseBody, "OK")
 			return true
 		})
 	})

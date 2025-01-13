@@ -2,7 +2,8 @@ module "ecs_cluster" {
   source  = "terraform-aws-modules/ecs/aws"
   version = "~> 5.0"
 
-  cluster_name = var.environment
+  cluster_settings = var.ecs_cluster_settings
+  cluster_name     = "${var.environment}-${var.unique_identifier}"
 }
 
 module "ecs_service" {
@@ -19,15 +20,15 @@ module "ecs_service" {
 
   container_definitions = {
     main = {
-      essential       = true
-      image           = var.fargate_docker_image
-      cpuArchitecture = var.fargate_cpu_architecture
+      essential = true
+      image     = var.fargate_docker_image
+      # Host port not required for Fargate tasks
       port_mappings = [
         {
           name          = "http"
           containerPort = var.fargate_container_port
-          hostPort      = var.fargate_container_port
           protocol      = "tcp"
+          appProtocol   = "http"
         }
       ]
       enable_cloudwatch_logging = true
@@ -66,6 +67,11 @@ module "ecs_service" {
     }
   }
 
+  runtime_platform = {
+    cpu_architecture        = var.fargate_cpu_architecture
+    operating_system_family = "LINUX"
+  }
+
   load_balancer = {
     service = {
       target_group_arn = module.alb.target_groups["ecs"].arn
@@ -96,4 +102,59 @@ module "ecs_service" {
       cidr_blocks = ["0.0.0.0/0"]
     }
   }
+}
+
+// todo: ECS task is starting before the RDS writer is running
+
+# Used by ad-hoc ECS Fargate task to seed the database during E2E tests. Creating here to make it easier to pass config from Terraform / AWS
+resource "aws_ecs_task_definition" "e2e_db_seeding" {
+  family                   = "${var.service_name}-e2e-db-seeding"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = var.e2e_db_seed_task_cpu
+  memory                   = var.e2e_db_seed_task_memory
+  execution_role_arn       = module.ecs_service.task_exec_iam_role_arn
+
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = var.e2e_db_seed_cpu_architecture
+  }
+
+  container_definitions = jsonencode([
+    {
+      name      = "db-seeding"
+      image     = var.e2e_db_seed_image
+      essential = true
+      environment = [
+        {
+          name : "RDS_USERNAME",
+          value : var.db_master_username
+        },
+        {
+          "name" : "RDS_ENDPOINT",
+          "value" : module.db.cluster_endpoint
+        },
+        {
+          "name" : "DB_NAME",
+          "value" : var.db_database_name
+        },
+      ],
+
+      secrets = [
+        {
+          "name" : "PGPASSWORD",
+          "valueFrom" : aws_secretsmanager_secret_version.db_master_password.arn
+        }
+      ],
+
+      logConfiguration = {
+        "logDriver" : "awslogs",
+        "options" : {
+          "awslogs-group" : aws_cloudwatch_log_group.e2e_db_seeding.name,
+          "awslogs-region" : var.region,
+          "awslogs-stream-prefix" : "db-seeding"
+        }
+      },
+    },
+  ])
 }

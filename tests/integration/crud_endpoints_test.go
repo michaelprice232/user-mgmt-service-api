@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/michaelprice232/user-mgmt-service-api/internal/api"
 	"github.com/michaelprice232/user-mgmt-service-api/tests/endpoints"
 
 	"github.com/gruntwork-io/terratest/modules/docker"
@@ -21,7 +22,7 @@ func TestUsingDockerCompose(t *testing.T) {
 
 	buildOptions := docker.Options{
 		WorkingDir:  "../..",
-		ProjectName: fmt.Sprintf("user-mgmt-service-api-%s", random.UniqueId()),
+		ProjectName: fmt.Sprintf("%s-%s", api.ServiceName, random.UniqueId()),
 
 		// Run on a different host port than the docker-compose instance instantiated locally from the Makefile, to avoid clashes
 		EnvVars: map[string]string{"HOSTPORT": hostPost},
