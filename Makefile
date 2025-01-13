@@ -13,7 +13,8 @@ int-tests:
 	go test -tags=integration -count=1 -v ./tests/integration
 
 e2e-tests:
-	go test -tags=e2e -count=1 -v -timeout 30m ./tests/e2e
+	export DOCKER_APP_IMAGE="633681147894.dkr.ecr.eu-west-2.amazonaws.com/user-mgmt-service-api:73a46c8ce278e6d205915f66b3e80b9ff61dc090"; \
+	go test -tags=e2e -count=1 -v -timeout 60m ./tests/e2e
 
 version:
 	go run -ldflags="-X main.BuildVersion=$(BUILD_VERSION)" cmd/main.go --version

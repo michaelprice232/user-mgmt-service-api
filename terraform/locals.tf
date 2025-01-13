@@ -1,3 +1,3 @@
 locals {
-  name = "${var.unique_identifier_prefix}-${var.service_name}-${var.environment}"
+  name = "${var.service_name}-${var.environment}-${var.unique_identifier}"
 }

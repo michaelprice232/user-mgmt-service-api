@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "db_master_password" {
-  name        = "${var.unique_identifier_prefix}/${var.environment}/${var.service_name}/db_master_password"
+  name        = "${var.unique_identifier}/${var.environment}/${var.service_name}/db_master_password"
   description = "Master password for the ${module.db.cluster_id} Aurora cluster"
 
   # Allow the E2E tests to repeatedly create/delete the same key name

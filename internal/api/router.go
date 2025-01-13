@@ -30,7 +30,7 @@ func RunAPIServer() {
 
 	// Register a /health endpoint which polls the Postgres DB. Also display system & git build info
 	h, err := health.New(health.WithSystemInfo(), health.WithComponent(health.Component{
-		Name:    "user-mgmt-service-api",
+		Name:    ServiceName,
 		Version: EnvConfig.BuildVersion,
 	}))
 	if err != nil {
