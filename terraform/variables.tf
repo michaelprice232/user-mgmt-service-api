@@ -67,8 +67,7 @@ variable "fargate_task_memory" {
 variable "fargate_docker_image" {
   type        = string
   description = "Docker image URL to run the app"
-  # todo: re-enable default for when running locally
-  # default     = "633681147894.dkr.ecr.eu-west-2.amazonaws.com/user-mgmt-service-api:73a46c8ce278e6d205915f66b3e80b9ff61dc090"
+  default     = "633681147894.dkr.ecr.eu-west-2.amazonaws.com/user-mgmt-service-api:73a46c8ce278e6d205915f66b3e80b9ff61dc090"
 }
 
 variable "fargate_container_port" {

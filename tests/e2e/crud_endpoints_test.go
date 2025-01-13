@@ -108,7 +108,7 @@ func seedDatabase(t *testing.T, ecsClusterName, targetSubnet, securityGroup, tar
 	assert.NoError(t, err, "Expected no errors from running the ECS task")
 	assert.Empty(t, ecsResult.Failures, "Expected no error results from running the ECS task")
 
-	// Test the CRUD endpoints once the DB seeding task has completed with retries
+	// Wait until the DB seeding task has completed (with retries)
 	t.Logf("Waiting for DB seeding task to complete")
 	taskID := *ecsResult.Tasks[0].TaskArn
 	currentAttempt := 0
