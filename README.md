@@ -1,8 +1,42 @@
 # user-mgmt-service-api
 
-L&D project containing a user management REST API exposing CRUD endpoints, written in Go with a Postgres DB
+[![CI](https://github.com/michaelprice232/user-mgmt-service-api/actions/workflows/ci.yml/badge.svg)](https://github.com/michaelprice232/user-mgmt-service-api/actions/workflows/ci.yml) [![PR against main](https://github.com/michaelprice232/user-mgmt-service-api/actions/workflows/pull-request.yml/badge.svg)](https://github.com/michaelprice232/user-mgmt-service-api/actions/workflows/pull-request.yml)
 
-For request/response/error models please see [types](internal/api/types.go) or see [example output below](https://github.com/michaelprice232/user-mgmt-service-api#example-output). Currently supported endpoints:
+L&D project containing a user management REST API exposing CRUD endpoints, written in Go with a Postgres DB.
+
+## Running locally
+
+Pre-reqs:
+- Docker & docker-compose installed
+- Go installed (v1.23 or above)
+
+Steps:
+```shell
+# Run the app & database using Docker Compose
+# You can then curl the endpoints e.g. http://localhost:8080/users
+make run
+
+# Cleanup the above running containers
+make down
+
+# Run unit tests
+make unit-tests
+
+# Run integration tests. Uses Docker Compose to deploy the app and then Terratest
+make int-tests
+
+# Run the E2E tests. Deploys the infra using Terraform into AWS and then uses Terratest to verify it
+# Requires that one the AWS credentials chain is present e.g. AWS_PROFILE env var is set
+make e2e-tests
+```
+
+## CI (GitHub Actions)
+
+- Push to any branch will trigger the linter (TODO), unit tests and integration tests
+- PR against the main branch will run the above tests as well as the E2E tests. Docker images in ECR will be based off the branch Git SHAs
+- (TODO): PR which is merged into the main branch will auto create a new GitHub tag and release. Docker images in ECR will be based off the semver tags
+
+## Endpoints
 
 | Endpoint                   | Description                                                                                                                                                       | Query Strings                                                                         | Request Payload Type | Response Payload Type                    | 
 |----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|----------------------|------------------------------------------|
@@ -14,30 +48,6 @@ For request/response/error models please see [types](internal/api/types.go) or s
 | PUT /users/<logon_name>    | Update an existing user. Supports the full_name & email fields or both                                                                                            | N/A                                                                                   | User                 | User                                     |
 | GET /health                | Health endpoint for use by K8s readiness/liveness probes. Currently polls the database. Utilises the [health-go library](https://github.com/hellofresh/health-go) | N/A                                                                                   | N/A                  | github.com/hellofresh/health-go/v5/Check |
 
-
-## How to run
-
-Pre-reqs:
-- Docker & docker-compose installed locally
-- Go installed (v1.18 or above)
-
-Steps:
-```shell
-# Start the Postgres DB (seeds DB & records during startup), builds and starts the Go webserver
-make run
-
-# Run some curl commands for testing the endpoints. Will be updated as more endpoints are added
-make test-endpoints
-
-# Stop docker-compose Postgres database and remove the Docker volume so that the DB init scripts are run next time
-# Make sure to also stop the Go webserver process. It is not running as a Docker container yet
-make cleanup
-```
-
-## Unit Tests
-```shell
-make test
-```
 
 ## Example Output
 
@@ -167,18 +177,11 @@ HTTP/1.1 204 No Content
 }
 ```
 
-## Remaining Tasks
-- [x] Add GET /users endpoint
-- [x] Add POST /users endpoint
-- [x] Add DELETE /users/{user} endpoint
-- [x] Add PUT /users/{user} endpoint
-- [x] Add GET /health endpoint (k8s probes)
-- [x] Enable graceful shutdowns of HTTP server (k8s pod lifecycle)
-- [ ] Integrate with GitHub Actions for running unit tests, linter, security scanner & Docker image build/push
+## TODO
+- [ ] Add GitHub workflow for auto releasing on merge into main
 - [ ] Add a GET endpoint for an individual user
 - [ ] Use primary keys in the REST URI's rather than logon names
-- [ ] Add OpenAPI docs
 - [ ] Instrument with Prometheus library
 - [ ] Instrument with OpenTelemetry client
-- [ ] Add Terraform for deploying into K8s cluster
-- [ ] Add Terratest smoke tests for validating deployment
+- [ ] Add OpenAPI docs
+- [ ] Replace Gorilla Mux module with standard library HTTP routing functionality

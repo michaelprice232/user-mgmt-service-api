@@ -2,6 +2,10 @@ output "service_endpoint" {
   value = format("http://%s", module.alb.dns_name)
 }
 
+output "service_name" {
+  value = module.ecs_service.name
+}
+
 output "ecs_cluster_name" {
   value = module.ecs_cluster.cluster_name
 }
