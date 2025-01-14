@@ -72,10 +72,14 @@ func TestUsingAWS(t *testing.T) {
 	}
 	ecsClient := ecs.NewFromConfig(cfg)
 
+	// Seed database with a table and some data to test against
 	seedDatabase(t, ecsClient, ecsClusterName, targetSubnet, securityGroup, targetDefinitions)
 
-	validateService(t, ecsClient, ecsClusterName, serviceName)
+	t.Run("Validate Fargate service deployment", func(t *testing.T) {
+		validateService(t, ecsClient, ecsClusterName, serviceName)
+	})
 
+	// Test the CRUD endpoints
 	endpoints.CheckEndpoints(t, baseURL, httpMaxRetries, httpTimeBetweenRetries)
 }
 
@@ -118,7 +122,19 @@ func validateService(t *testing.T, ecsClient *ecs.Client, clusterName, serviceNa
 				ready = false
 			}
 
+			// Check for any non-completed deployments
+			if service.DesiredCount == service.RunningCount {
+				for _, deployment := range service.Deployments {
+					if deployment.RolloutState != types.DeploymentRolloutStateCompleted {
+						t.Logf("Waiting for service %s to be ready. Rollout hasn't completed yet for deployment %s. Current state: %s",
+							serviceName, *deployment.Id, deployment.RolloutState)
+						ready = false
+					}
+				}
+			}
+
 			if ready {
+				t.Logf("Service %s is ready", serviceName)
 				return
 			}
 
