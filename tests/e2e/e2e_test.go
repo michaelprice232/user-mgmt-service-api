@@ -111,7 +111,6 @@ func validateService(t *testing.T, ecsClient *ecs.Client, clusterName, serviceNa
 			if *service.Status != "ACTIVE" {
 				t.Logf("Waiting for service %s to be ready. Expected service to the ACTIVE but got %s", serviceName, *service.Status)
 				ready = false
-
 			}
 
 			if service.DesiredCount != service.RunningCount {
@@ -132,6 +131,8 @@ func validateService(t *testing.T, ecsClient *ecs.Client, clusterName, serviceNa
 
 // seedDatabase prepares the database for E2E testing by creating a table and some sample data.
 func seedDatabase(t *testing.T, ecsClient *ecs.Client, ecsClusterName, targetSubnet, securityGroup, targetDefinitions string) {
+	t.Logf("Seeding the database")
+
 	// Deploy Fargate task to update database
 	ecsResult, err := ecsClient.RunTask(context.Background(), &ecs.RunTaskInput{
 		TaskDefinition: aws.String(targetDefinitions),
@@ -174,7 +175,7 @@ func seedDatabase(t *testing.T, ecsClient *ecs.Client, ecsClusterName, targetSub
 			if describeResult.Tasks[0].LastStatus != nil && *describeResult.Tasks[0].LastStatus == "STOPPED" {
 				if *describeResult.Tasks[0].Containers[0].ExitCode == 0 {
 					t.Logf("DB seeding task completed successfully")
-					break
+					return
 				} else {
 					t.Fatalf("DB seeding task completed with wrong exit code. Expected 0, got %v", *describeResult.Tasks[0].Containers[0].ExitCode)
 				}
