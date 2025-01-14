@@ -1,4 +1,4 @@
-# Build and push Docker image and then run E2E tests in AWS when raising a PR against the main branch
+# When raising a PR against the main branch build and push Docker image and then run E2E tests in AWS
 # Other tests will also be triggered from the ci.yml workflow
 name: PR against main
 on:
@@ -16,6 +16,8 @@ jobs:
 
     env:
       AWS_REGION : "eu-west-2"
+      AWS_ACCOUNT_ID: "633681147894"
+      ARCHITECTURES: "linux/amd64,linux/arm64"
 
     steps:
       - name: Clone git repo
@@ -26,7 +28,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::633681147894:role/gh-actions-user-mgmt-service-api-workflow
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/gh-actions-user-mgmt-service-api-workflow
           role-session-name: GHActions-user-mgmt-service-api
           aws-region: ${{ env.AWS_REGION }}
 
@@ -35,7 +37,6 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       # Required for multi-platform builds
-      # Using the "Cross Compilation" method rather than emulation. See Dockerfile variables
       # https://docs.docker.com/build/ci/github-actions/multi-platform/
       # https://docs.docker.com/build/building/multi-platform/#cross-compiling-a-go-application
       - name: Set up Docker
@@ -48,6 +49,7 @@ jobs:
               }
             }
 
+      # Using the "Cross Compilation" method rather than emulation. See Dockerfile variables
       - name: Build & push multi-architecture Docker image for app
         id: docker-image
         env:
@@ -85,6 +87,3 @@ jobs:
         env:
           DOCKER_APP_IMAGE: ${{ steps.docker-image.outputs.image }}
         run: go test -tags=e2e -count=1 -v -timeout 60m ./tests/e2e
-
-          
-          

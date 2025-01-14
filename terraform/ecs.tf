@@ -102,9 +102,10 @@ module "ecs_service" {
       cidr_blocks = ["0.0.0.0/0"]
     }
   }
-}
 
-// todo: ECS task is starting before the RDS writer is running
+  # Wait for the database to be fully initialised before deploying app
+  depends_on = [module.db]
+}
 
 # Used by ad-hoc ECS Fargate task to seed the database during E2E tests. Creating here to make it easier to pass config from Terraform / AWS
 resource "aws_ecs_task_definition" "e2e_db_seeding" {
