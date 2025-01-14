@@ -203,5 +203,3 @@ func seedDatabase(t *testing.T, ecsClient *ecs.Client, ecsClusterName, targetSub
 		}
 	}
 }
-
-// todo: health check version does not match branch

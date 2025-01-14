@@ -2,11 +2,12 @@
 # Other tests will also be triggered from the ci.yml workflow
 name: PR against main
 on:
-  push:
-# todo: switch back after testing
-#  pull_request:
-#    branches:
-#      - main
+  pull_request:
+    branches:
+      - main
+
+
+# todo: add a release workflow
 
 permissions:
   id-token: write   # required for requesting the JWT
@@ -85,6 +86,14 @@ jobs:
           go-version-file: go.mod
 
       - name: E2E tests
+        id: e2e-tests
         env:
           DOCKER_APP_IMAGE: ${{ steps.docker-image.outputs.image }}
-        run: go test -tags=e2e -count=1 -v -timeout 60m ./tests/e2e
+        run: go test -tags=e2e -count=1 -v -timeout 60m ./tests/e2e | tee e2e-tests.log
+
+      # Upload as artifact only if the tests have failed to avoid log truncation
+      - uses: actions/upload-artifact@v4
+        if: failure() && steps.e2e-tests.outcome == 'failure'
+        with:
+          name: failed-e2e-test-log
+          path: e2e-tests.log
