@@ -11,6 +11,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Clone git repo
+        uses: actions/checkout@v4
+
       - uses: googleapis/release-please-action@v4
+        id: releaser
         with:
           release-type: go
+
+      - name: setup-go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build Go binaries
+        if: ${{ steps.releaser.outputs.release_created }}
+        env:
+          BUILD_VERSION: ${{ steps.releaser.outputs.tag_name }}
+          SERVICE_NAME: user-mgmt-service-api
+        run: |
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-X main.BuildVersion=${{ env.BUILD_VERSION }}" -o ${{env.SERVICE_NAME }}-linux-amd64 ./cmd/main.go
+          GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-X main.BuildVersion=${{ env.BUILD_VERSION }}" -o ${{env.SERVICE_NAME }}-linux-arm64 ./cmd/main.go
+
+      - name: Upload release artifacts
+        if: ${{ steps.releaser.outputs.release_created }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ steps.releaser.outputs.tag_name }} ${{env.SERVICE_NAME }}-linux-amd64
+          gh release upload ${{ steps.releaser.outputs.tag_name }} ${{env.SERVICE_NAME }}-linux-arm64
