@@ -1,0 +1,16 @@
+# When a PR is merged into main, determine the next semver release based on conventional commits,
+# cut a GitHub release and build a push a Docker image into ECR.
+name: auto-releaser
+on:
+  push:
+    # todo: switch to main following testing
+    branches: ci/add-releaser
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          release-type: go
