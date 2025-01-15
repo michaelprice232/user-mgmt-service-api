@@ -3,8 +3,7 @@
 name: auto-releaser
 on:
   push:
-    # todo: switch to main following testing
-    branches: ci/add-releaser
+    branches: main
 
 permissions:
   contents: write
@@ -21,15 +20,17 @@ jobs:
       - name: Clone git repo
         uses: actions/checkout@v4
 
-      - uses: googleapis/release-please-action@v4
+      # Calculate the next semantic version based on the conventional git commits
+      # Create a GitHub release if required
+      # https://github.com/googleapis/release-please-action
+      - name: Create GitHub release
+        uses: googleapis/release-please-action@v4
         id: releaser
         with:
+          # We cannot use the default GITHUB_TOKEN as this user does not trigger workflows automatically
+          # Required so that the release workflow runs once we have merged the release PR
           token: ${{ secrets.GH_PAT }}
-
           release-type: go
-
-          # todo: remove so it defaults back to main
-          target-branch: ${{ github.ref_name }}
 
       - name: setup-go
         uses: actions/setup-go@v5
