@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/michaelprice232/user-mgmt-service-api/compare/v1.1.0...v1.1.1) (2025-01-15)
+
+
+### Bug Fixes
+
+* ensure the service name env var is available ([5f72e4d](https://github.com/michaelprice232/user-mgmt-service-api/commit/5f72e4db58781f741657aaa3718a487f7bfd1ed5))
+
 ## [1.1.0](https://github.com/michaelprice232/user-mgmt-service-api/compare/v1.0.0...v1.1.0) (2025-01-15)
 
 
