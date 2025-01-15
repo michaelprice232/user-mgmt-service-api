@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/michaelprice232/user-mgmt-service-api/compare/v1.1.1...v1.2.0) (2025-01-15)
+
+
+### Features
+
+* add additional build architectures ([3310163](https://github.com/michaelprice232/user-mgmt-service-api/commit/3310163fd57e53a1ac8684d5db8410f055d12a57))
+
 ## [1.1.1](https://github.com/michaelprice232/user-mgmt-service-api/compare/v1.1.0...v1.1.1) (2025-01-15)
 
 
