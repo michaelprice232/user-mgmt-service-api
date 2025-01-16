@@ -32,9 +32,10 @@ make e2e-tests
 
 ## CI (GitHub Actions)
 
-- Push to any branch will trigger the linter (TODO), unit tests and integration tests
-- PR against the main branch will run the above tests as well as the E2E tests. Docker images in ECR will be based off the branch Git SHAs
-- (TODO): PR which is merged into the main branch will auto create a new GitHub tag and release. Docker images in ECR will be based off the semver tags
+- Push to any branch will trigger the linter (TODO), unit tests and integration tests (Docker Compose)
+- PR against the main branch will run the above tests as well as the E2E tests (deploying into AWS). Docker images in ECR will be based off the Git branch SHAs
+- When the PR is merged into the main branch this will auto create a release PR using a Semantic Version tag via [release please](https://github.com/googleapis/release-please-action)
+- Once the release PR is merged the GitHub release will be created, build binaries attached and Docker images built in ECR using the SemVer tags
 
 ## Endpoints
 

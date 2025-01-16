@@ -1,9 +1,10 @@
 # When a PR is merged into main, determine the next semver release based on conventional commits,
-# cut a GitHub release and build a push a Docker image into ECR.
+# cut a GitHub release containing build binaries and build and push a Docker image into ECR.
 name: auto-releaser
 on:
   push:
-    branches: main
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -15,6 +16,8 @@ jobs:
 
     env:
       SERVICE_NAME: user-mgmt-service-api
+      AWS_REGION: "eu-west-2"
+      AWS_ACCOUNT_ID: "633681147894"
 
     steps:
       - name: Clone git repo
@@ -28,11 +31,12 @@ jobs:
         id: releaser
         with:
           # We cannot use the default GITHUB_TOKEN as this user does not trigger workflows automatically
-          # Required so that the release workflow runs once we have merged the release PR
+          # Required so that this workflow re-runs once we have merged the release PR
           token: ${{ secrets.GH_PAT }}
           release-type: go
 
       - name: setup-go
+        if: ${{ steps.releaser.outputs.release_created }}
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
@@ -42,9 +46,7 @@ jobs:
         env:
           BUILD_VERSION: ${{ steps.releaser.outputs.tag_name }}
         run: |
-          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-X main.BuildVersion=${{ env.BUILD_VERSION }}" -o ${{env.SERVICE_NAME }}-linux-amd64 ./cmd/main.go
           GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-X main.BuildVersion=${{ env.BUILD_VERSION }}" -o ${{env.SERVICE_NAME }}-linux-arm64 ./cmd/main.go
-          GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-X main.BuildVersion=${{ env.BUILD_VERSION }}" -o ${{env.SERVICE_NAME }}-darwin-amd64 ./cmd/main.go
           GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-X main.BuildVersion=${{ env.BUILD_VERSION }}" -o ${{env.SERVICE_NAME }}-darwin-arm64 ./cmd/main.go
 
       - name: Upload release artifacts
@@ -52,7 +54,49 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ steps.releaser.outputs.tag_name }} ${{env.SERVICE_NAME }}-linux-amd64
           gh release upload ${{ steps.releaser.outputs.tag_name }} ${{env.SERVICE_NAME }}-linux-arm64
-          gh release upload ${{ steps.releaser.outputs.tag_name }} ${{env.SERVICE_NAME }}-darwin-amd64
           gh release upload ${{ steps.releaser.outputs.tag_name }} ${{env.SERVICE_NAME }}-darwin-arm64
+
+      # Use OIDC rather than long-lived IAM credentials. OIDC provider and IAM role needs to be configured in AWS
+      # https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
+      - name: Configure AWS credentials
+        if: ${{ steps.releaser.outputs.release_created }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/gh-actions-user-mgmt-service-api-workflow
+          role-session-name: GHActions-user-mgmt-service-api
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        if: ${{ steps.releaser.outputs.release_created }}
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Required for multi-platform builds
+      # https://docs.docker.com/build/ci/github-actions/multi-platform/
+      # https://docs.docker.com/build/building/multi-platform/#cross-compiling-a-go-application
+      - name: Set up Docker
+        if: ${{ steps.releaser.outputs.release_created }}
+        uses: docker/setup-docker-action@v4
+        with:
+          daemon-config: |
+            {
+              "features": {
+                "containerd-snapshotter": true
+              }
+            }
+
+      # Using the "Cross Compilation" method rather than emulation. See Dockerfile variables
+      # Use SemVer tag
+      - name: Build & push multi-architecture Docker image for app
+        if: ${{ steps.releaser.outputs.release_created }}
+        id: docker-image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: user-mgmt-service-api
+          IMAGE_TAG: ${{ steps.releaser.outputs.tag_name }}
+          ARCHITECTURES: linux/amd64,linux/arm64
+        run: |
+          docker build --platform $ARCHITECTURES -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg BUILD_VERSION=$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          echo Pushed $REGISTRY/$REPOSITORY:$IMAGE_TAG

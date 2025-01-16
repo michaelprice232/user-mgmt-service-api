@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Script for running ad-hoc manual tests of the CRUD endpoints. It's recommended to run the integration tests instead, which automate these using Terratest and Docker Compose
+
 set -eu -o pipefail
 
 url='http://localhost:8080'
