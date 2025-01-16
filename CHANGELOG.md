@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/michaelprice232/user-mgmt-service-api/compare/v1.2.0...v1.3.0) (2025-01-16)
+
+
+### Features
+
+* build final SemVer Docker images ([#20](https://github.com/michaelprice232/user-mgmt-service-api/issues/20)) ([ff1f3a3](https://github.com/michaelprice232/user-mgmt-service-api/commit/ff1f3a3ac7446bfed7cbd114d609aea4badf116f))
+
 ## [1.2.0](https://github.com/michaelprice232/user-mgmt-service-api/compare/v1.1.0...v1.2.0) (2025-01-15)
 
 
