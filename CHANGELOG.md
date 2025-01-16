@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/michaelprice232/user-mgmt-service-api/compare/v1.3.0...v1.3.1) (2025-01-16)
+
+
+### Bug Fixes
+
+* allow pipeline to get JWT token ([#22](https://github.com/michaelprice232/user-mgmt-service-api/issues/22)) ([f0bb71f](https://github.com/michaelprice232/user-mgmt-service-api/commit/f0bb71f7767e1ef8af8340aa9424a98c3910347c))
+
 ## [1.3.0](https://github.com/michaelprice232/user-mgmt-service-api/compare/v1.2.0...v1.3.0) (2025-01-16)
 
 
