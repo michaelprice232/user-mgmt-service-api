@@ -50,8 +50,9 @@ func TestUsingAWS(t *testing.T) {
 	}
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-		TerraformDir: "../../terraform",
-		Vars:         varInput,
+		TerraformDir:    "../../terraform",
+		TerraformBinary: "terraform",
+		Vars:            varInput,
 	})
 
 	defer terraform.Destroy(t, terraformOptions)
