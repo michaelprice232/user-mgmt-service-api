@@ -16,7 +16,7 @@ type Env struct {
 
 type DBCredentials struct {
 	HostName   string
-	Port       uint
+	Port       int64
 	DBName     string
 	DBUsername string
 	DBPassword string
@@ -41,7 +41,7 @@ type UsersResponse struct {
 	MorePages   bool `json:"more_pages"`
 }
 
-type JsonHTTPErrorResponse struct {
+type JSONHTTPErrorResponse struct {
 	Code    int
 	Message string
 }

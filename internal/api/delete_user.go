@@ -20,18 +20,16 @@ func (env *Env) deleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if exists {
-		log.Infof("'%s' exists. Deleting user from the DB", targetLogonName)
-		err = env.UsersDB.deleteUser(targetLogonName)
-		if err != nil {
-			jsonHTTPErrorResponseWriter(w, r, 500, fmt.Sprintf("deleting user from DB: %v", err))
-			return
-		}
-		w.WriteHeader(204)
-		return
-
-	} else {
+	if !exists {
 		jsonHTTPErrorResponseWriter(w, r, 404, fmt.Sprintf("'%s' does not exist. No deletion required", targetLogonName))
 		return
 	}
+
+	log.Infof("'%s' exists. Deleting user from the DB", targetLogonName)
+	err = env.UsersDB.deleteUser(targetLogonName)
+	if err != nil {
+		jsonHTTPErrorResponseWriter(w, r, 500, fmt.Sprintf("deleting user from DB: %v", err))
+		return
+	}
+	w.WriteHeader(204)
 }

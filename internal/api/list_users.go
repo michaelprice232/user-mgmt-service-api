@@ -89,9 +89,8 @@ func (env *Env) listUsers(w http.ResponseWriter, r *http.Request) {
 func getFullPathIncludingQueryParams(url *url.URL) string {
 	if url.Query().Encode() != "" {
 		return fmt.Sprintf("%s?%s", url.Path, url.Query().Encode())
-	} else {
-		return url.Path
 	}
+	return url.Path
 }
 
 // extractAndValidateQueryParams extracts any query strings and validates them
@@ -105,9 +104,8 @@ func extractAndValidateQueryParams(queryStrings url.Values) (queryParameters, er
 		if err != nil || perPage64 <= 0 || perPage64 > maxPageSize {
 			if err != nil {
 				return params, fmt.Errorf("per_page query string must be an integer between 1 and %d: %v", maxPageSize, err)
-			} else {
-				return params, fmt.Errorf("per_page query string must be an integer between 1 and %d", maxPageSize)
 			}
+			return params, fmt.Errorf("per_page query string must be an integer between 1 and %d", maxPageSize)
 
 		}
 		params.perPage = int(perPage64)
@@ -120,9 +118,8 @@ func extractAndValidateQueryParams(queryStrings url.Values) (queryParameters, er
 		if err != nil || page64 <= 0 {
 			if err != nil {
 				return params, fmt.Errorf("page query string must be an integer greater than 0: %v", err)
-			} else {
-				return params, fmt.Errorf("page query string must be an integer greater than 0")
 			}
+			return params, fmt.Errorf("page query string must be an integer greater than 0")
 
 		}
 		params.page = int(page64)

@@ -84,7 +84,7 @@ func validatePutRequestPayload(user User, w http.ResponseWriter, r *http.Request
 	if user.UserID != 0 {
 		resp := "logon_name and user_id are not supported request body fields for this operation"
 		jsonHTTPErrorResponseWriter(w, r, 400, resp)
-		return fmt.Errorf(resp)
+		return fmt.Errorf("%s", resp)
 	}
 
 	// optional field to pass
