@@ -179,10 +179,9 @@ HTTP/1.1 204 No Content
 ```
 
 ## TODO
-- [ ] Add GitHub workflow for auto releasing on merge into main
-- [ ] Add a GET endpoint for an individual user
 - [ ] Use primary keys in the REST URI's rather than logon names
+- [ ] Add a GET endpoint for an individual user
+- [ ] Replace Gorilla Mux module with standard library HTTP routing functionality
 - [ ] Instrument with Prometheus library
 - [ ] Instrument with OpenTelemetry client
 - [ ] Add OpenAPI docs
-- [ ] Replace Gorilla Mux module with standard library HTTP routing functionality

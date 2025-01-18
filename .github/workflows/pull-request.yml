@@ -5,6 +5,9 @@ on:
   pull_request:
     branches:
       - main
+    # Do not run if part of the release please workflow (auto-releaser.yml), as the E2E tests have already been run
+    branches-ignore:
+      - 'release-please-**'
 
 permissions:
   id-token: write   # required for requesting the JWT
@@ -12,9 +15,6 @@ permissions:
 
 jobs:
   e2e-tests:
-    # Do not run if part of the release please workflow (auto-releaser.yml), as the tests have already been run
-    if: ${{ ! contains(github.event.pull_request.body, 'This PR was generated with [Release Please]') }}
-
     runs-on: ubuntu-latest
 
     env:
