@@ -1,0 +1,28 @@
+# https://golangci-lint.run/usage/configuration/
+# https://golangci-lint.run/usage/linters/
+
+linters:
+  enable:
+    # Static analysis
+    - govet
+    - staticcheck
+
+    # Code style and formatting
+    - gofmt
+    - misspell
+    - revive
+
+    # Error handling
+    - errcheck
+
+    # Dead and unused code
+    - unused
+    - ineffassign
+
+    # Complexity
+    - gocyclo
+    - goconst
+    - gosimple
+
+    # Security
+    - gosec
