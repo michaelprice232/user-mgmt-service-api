@@ -88,7 +88,9 @@ jobs:
         id: e2e-tests
         env:
           DOCKER_APP_IMAGE: ${{ steps.docker-image.outputs.image }}
-        run: go test -tags=e2e -count=1 -v -timeout 60m ./tests/e2e | tee e2e-tests.log
+        run: |
+          set -o pipefail
+          go test -tags=e2e -count=1 -v -timeout 60m ./tests/e2e | tee e2e-tests.log
 
       # Upload as artifact only if the tests have failed to avoid log truncation
       - uses: actions/upload-artifact@v4
