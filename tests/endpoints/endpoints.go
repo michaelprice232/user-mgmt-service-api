@@ -25,8 +25,8 @@ func unmarshalJSONUsersResponse(t *testing.T, input string) api.UsersResponse {
 	return resp
 }
 
-func unmarshalJSONErrorResponse(t *testing.T, input string) api.JsonHTTPErrorResponse {
-	resp := api.JsonHTTPErrorResponse{}
+func unmarshalJSONErrorResponse(t *testing.T, input string) api.JSONHTTPErrorResponse {
+	resp := api.JSONHTTPErrorResponse{}
 	err := json.Unmarshal([]byte(input), &resp)
 	assert.NoError(t, err)
 	return resp

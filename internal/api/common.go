@@ -17,7 +17,7 @@ const ServiceName = "user-mgmt-service-api"
 func jsonHTTPErrorResponseWriter(w http.ResponseWriter, r *http.Request, statusCode int, message string) {
 	var jsonResp []byte
 	var err error
-	resp := JsonHTTPErrorResponse{
+	resp := JSONHTTPErrorResponse{
 		Code:    statusCode,
 		Message: message,
 	}
@@ -72,9 +72,8 @@ func checkLogonNameExists(logonName string, env *Env) (bool, error) {
 	}
 	if count == 0 {
 		return false, nil
-	} else {
-		return true, nil
 	}
+	return true, nil
 }
 
 // validateFieldLengths validates that each of the User fields do not exceed the database table limits

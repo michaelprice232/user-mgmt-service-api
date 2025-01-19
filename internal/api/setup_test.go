@@ -6,6 +6,6 @@ import (
 	"testing"
 )
 
-func TestMain(m *testing.M) {
+func TestMain(_ *testing.M) {
 	log.SetLevel(log.ErrorLevel)
 }

@@ -16,10 +16,8 @@ type mockGetUsersModel struct{}
 func (m *mockGetUsersModel) queryRecordCount(nameFilter, _ string) (int, error) {
 	if nameFilter == "bob" {
 		return 2, nil
-	} else {
-		return 5, nil
 	}
-
+	return 5, nil
 }
 
 func (m *mockGetUsersModel) queryUsers(offset, limit int, nameFilter string) ([]User, error) {
@@ -77,7 +75,7 @@ func TestListUsersWithoutQueryParams(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	var resp UsersResponse
-	err = json.Unmarshal([]byte(rec.Body.String()), &resp)
+	err = json.Unmarshal(rec.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("unable to unmarshal JSON response")
 	}
@@ -95,7 +93,7 @@ func TestListUsersWithNameFilter(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	var resp UsersResponse
-	err = json.Unmarshal([]byte(rec.Body.String()), &resp)
+	err = json.Unmarshal(rec.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("unable to unmarshal JSON response")
 	}
@@ -113,7 +111,7 @@ func TestListUsersWithPagination(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	var resp UsersResponse
-	err = json.Unmarshal([]byte(rec.Body.String()), &resp)
+	err = json.Unmarshal(rec.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("unable to unmarshal JSON response")
 	}
@@ -130,8 +128,8 @@ func TestListUsersPerPageTooLarge(t *testing.T) {
 	rec := setupMockGetUsersHTTPHandler("/users?per_page=3000")
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
-	var resp JsonHTTPErrorResponse
-	err = json.Unmarshal([]byte(rec.Body.String()), &resp)
+	var resp JSONHTTPErrorResponse
+	err = json.Unmarshal(rec.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("unable to unmarshal JSON response")
 	}
@@ -145,8 +143,8 @@ func TestListUsersPageNotFound(t *testing.T) {
 	rec := setupMockGetUsersHTTPHandler("/users?page=1000")
 
 	assert.Equal(t, http.StatusNotFound, rec.Code)
-	var resp JsonHTTPErrorResponse
-	err = json.Unmarshal([]byte(rec.Body.String()), &resp)
+	var resp JSONHTTPErrorResponse
+	err = json.Unmarshal(rec.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("unable to unmarshal JSON response")
 	}

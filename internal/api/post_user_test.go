@@ -62,14 +62,14 @@ func postRequestHelperSuccess(user User, t *testing.T) (*httptest.ResponseRecord
 	}
 	rec := setupMockPostUserHTTPHandler(buf)
 	var resp User
-	err = json.Unmarshal([]byte(rec.Body.String()), &resp)
+	err = json.Unmarshal(rec.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("unable to unmarshal JSON response")
 	}
 	return rec, resp
 }
 
-func postRequestHelperFailure(user User, t *testing.T) (*httptest.ResponseRecorder, JsonHTTPErrorResponse) {
+func postRequestHelperFailure(user User, t *testing.T) (*httptest.ResponseRecorder, JSONHTTPErrorResponse) {
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(user)
 	if err != nil {
@@ -77,8 +77,8 @@ func postRequestHelperFailure(user User, t *testing.T) (*httptest.ResponseRecord
 	}
 	rec := setupMockPostUserHTTPHandler(buf)
 
-	var resp JsonHTTPErrorResponse
-	err = json.Unmarshal([]byte(rec.Body.String()), &resp)
+	var resp JSONHTTPErrorResponse
+	err = json.Unmarshal(rec.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("unable to unmarshal JSON response")
 	}

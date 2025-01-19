@@ -84,11 +84,20 @@ jobs:
         with:
           go-version-file: go.mod
 
+      # TF binary no longer present by default on the runners: https://github.com/actions/runner-images/blob/ubuntu24/20250105.1/images/ubuntu/Ubuntu2404-Readme.md
+      # Ensure version matches what is in the contraints: https://github.com/michaelprice232/user-mgmt-service-api/blob/main/terraform/provider.tf
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.0"
+
       - name: E2E tests
         id: e2e-tests
         env:
           DOCKER_APP_IMAGE: ${{ steps.docker-image.outputs.image }}
-        run: go test -tags=e2e -count=1 -v -timeout 60m ./tests/e2e | tee e2e-tests.log
+        run: |
+          set -o pipefail
+          go test -tags=e2e -count=1 -v -timeout 60m ./tests/e2e | tee e2e-tests.log
 
       # Upload as artifact only if the tests have failed to avoid log truncation
       - uses: actions/upload-artifact@v4

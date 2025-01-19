@@ -50,8 +50,9 @@ func TestUsingAWS(t *testing.T) {
 	}
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-		TerraformDir: "../../terraform",
-		Vars:         varInput,
+		TerraformDir:    "../../terraform",
+		TerraformBinary: "terraform",
+		Vars:            varInput,
 	})
 
 	defer terraform.Destroy(t, terraformOptions)
@@ -189,7 +190,7 @@ func seedDatabase(t *testing.T, ecsClient *ecs.Client, ecsClusterName, targetSub
 
 			// Wait until the task is in a stopped state with a successful exit code
 			if describeResult.Tasks[0].LastStatus != nil && *describeResult.Tasks[0].LastStatus == "STOPPED" {
-				if *describeResult.Tasks[0].Containers[0].ExitCode == 0 {
+				if describeResult.Tasks[0].Containers[0].ExitCode != nil && *describeResult.Tasks[0].Containers[0].ExitCode == 0 {
 					t.Logf("DB seeding task completed successfully")
 					return
 				} else {

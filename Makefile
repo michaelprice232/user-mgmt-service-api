@@ -6,6 +6,9 @@ run:
 down:
 	HOSTPORT=8080 docker-compose down --volumes
 
+lint:
+	golangci-lint run
+
 unit-tests:
 	go test -v ./...
 

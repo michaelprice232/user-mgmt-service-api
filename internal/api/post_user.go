@@ -59,8 +59,8 @@ func validateRequestPayload(user User, env *Env, w http.ResponseWriter, r *http.
 
 	if user.UserID != 0 {
 		resp1 := "passing a user_id in the request payload is not supported"
-		jsonHTTPErrorResponseWriter(w, r, 400, fmt.Sprintf(resp1))
-		return fmt.Errorf(resp1)
+		jsonHTTPErrorResponseWriter(w, r, 400, resp1)
+		return fmt.Errorf("%s", resp1)
 	}
 
 	err = validateEmailField(user.Email)
@@ -76,7 +76,7 @@ func validateRequestPayload(user User, env *Env, w http.ResponseWriter, r *http.
 	} else if found {
 		resp2 := fmt.Sprintf("logon_name '%s' already taken. Please choose another one", user.LogonName)
 		jsonHTTPErrorResponseWriter(w, r, 400, resp2)
-		return fmt.Errorf(resp2)
+		return fmt.Errorf("%s", resp2)
 	}
 
 	return nil
@@ -90,7 +90,7 @@ func checkForUniqueLogonName(logonName string, env *Env) (bool, error) {
 	}
 	if count > 0 {
 		return true, nil
-	} else {
-		return false, nil
 	}
+
+	return false, nil
 }
